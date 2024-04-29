@@ -8,6 +8,7 @@ import (
 	"ps-cats-social/pkg/errs"
 	"ps-cats-social/pkg/httphelper"
 	"ps-cats-social/pkg/httphelper/response"
+	"ps-cats-social/pkg/middleware"
 
 	"golang.org/x/exp/slog"
 )
@@ -87,4 +88,12 @@ func (h *BaseHTTPHandler) logPanicMessage(r *http.Request, message string, err i
 	src := "\n--- (Staging " + r.Host + ") ---\n"
 
 	slog.ErrorCtx(r.Context(), message+src+msg, "attrs", errs.GetDefaultRequestFields(r))
+}
+
+func (h *BaseHTTPHandler) RunActionAuth(fn HandlerFn) http.HandlerFunc {
+	return h.HandlePanic(h.ExecuteAuth(h.Execute(fn)))
+}
+
+func (h *BaseHTTPHandler) ExecuteAuth(fn http.HandlerFunc) http.HandlerFunc {
+	return middleware.JWTAuthMiddleware(fn)
 }
