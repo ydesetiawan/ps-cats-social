@@ -86,7 +86,7 @@ func initLogger() {
 
 func runHttpCommand(cmd *cobra.Command, args []string) error {
 	initLogger()
-
+	//server.InitDBMigrate()
 	// init datadog tracer
 	rules := []tracer.SamplingRule{tracer.RateRule(1)}
 	tracerOpt := []tracer.StartOption{

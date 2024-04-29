@@ -19,3 +19,17 @@ Project Sprint for Cats Social
   Setup web server (non-docker)
 - cd cmd/production-api
 - go run main.go http
+
+* Golang Migrate
+- https://www.freecodecamp.org/news/database-migration-golang-migrate/
+```
+- migrate create -ext sql -dir db/migrations/ -seq create_user
+```
+
+```
+migrate -path db/migrations/ -database "postgresql://postgres:@localhost:5432/cats_social?sslmode=disable" -verbose up
+```
+
+```
+migrate -path db/migrations/ -database "postgresql://postgres:@localhost:5432/cats_social?sslmode=disable" -verbose down
+```

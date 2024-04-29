@@ -6,6 +6,7 @@ require (
 	github.com/alexliesenfeld/health v0.8.0
 	github.com/elastic/go-elasticsearch/v8 v8.13.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/golang-migrate/migrate/v4 v4.17.1
 	github.com/gorilla/mux v1.8.1
 	github.com/rs/cors v1.11.0
 	github.com/shopspring/decimal v1.4.0
