@@ -16,9 +16,11 @@ func NewUserRepository(db *sqlx.DB) UserRepository {
 	return &userRepo{db: db}
 }
 
-func (r *userRepo) GetUserByUsername(username string) (*model.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *userRepo) GetUserByUsername(username string) (model.User, error) {
+	var user model.User
+	query := "select * from users where email = $1 "
+	err := r.db.Get(&user, query, username)
+	return user, err
 }
 
 func (ur *userRepo) RegisterUser(user *model.User) error {

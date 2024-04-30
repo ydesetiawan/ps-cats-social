@@ -29,3 +29,16 @@ func (s *UserService) RegisterUser(ctx context.Context, req dto.RegisterReq) (*d
 		Message: "Berhasil",
 	}, nil
 }
+
+func (s *UserService) Login(ctx context.Context, req dto.LoginReq) (*dto.RegisterResp, error) {
+	usr, err := s.userRepository.GetUserByUsername(req.Email)
+	if err != nil {
+		return &dto.RegisterResp{
+			Message: usr.Name,
+		}, err
+	}
+
+	return &dto.RegisterResp{
+		Message: usr.Name,
+	}, nil
+}
