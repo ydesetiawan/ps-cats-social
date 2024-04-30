@@ -53,7 +53,7 @@ func (h *UserHTTPHandler) Login(ctx *app.Context) *response.WebResponse {
 
 	return &response.WebResponse{
 		Status:  200,
-		Message: "Created",
+		Message: "User logged successfully",
 		Data:    result,
 	}
 }
