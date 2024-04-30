@@ -23,21 +23,29 @@ func (r *userRepo) GetUserByEmail(email string) (model.User, error) {
 	return user, err
 }
 
-func (ur *userRepo) RegisterUser(user *model.User) error {
+func (r *userRepo) GetUserByEmailAndId(email string, id int64) (model.User, error) {
+	var user model.User
+	query := "select * from users where email = $1 and id = $2 "
+	err := r.db.Get(&user, query, email, id)
+	return user, err
+}
+
+func (r *userRepo) RegisterUser(user *model.User) (int64, error) {
 	query := "insert into users " +
 		"(email, name, password) values($1,$2,$3)"
 
 	//TODO using becrypt
 	password := user.Password
 
-	_, err := ur.db.Exec(query, user.Email, user.Name, password)
+	result, err := r.db.Exec(query, user.Email, user.Name, password)
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
-			return errors.New("email already exist")
+			return 0, errors.New("email already exist")
 		}
 		slog.Warn("Error registering user")
-		return err
+		return 0, err
 	}
 
-	return nil
+	id, _ := result.LastInsertId()
+	return id, nil
 }

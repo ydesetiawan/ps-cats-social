@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	ID       *int64 `db:"id" json:"id"`
+	ID       int64  `db:"id" json:"id"`
 	Email    string `db:"email" json:"email"`
 	Password string `db:"password" json:"password"`
 	Name     string `db:"name" json:"name"`
@@ -13,9 +13,8 @@ type User struct {
 
 func NewUser(req dto.RegisterReq) *User {
 	return &User{
-		nil,
-		req.Email,
-		req.Password,
-		req.Name,
+		Email:    req.Email,
+		Password: req.Password,
+		Name:     req.Name,
 	}
 }
