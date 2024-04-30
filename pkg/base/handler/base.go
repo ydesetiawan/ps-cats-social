@@ -47,7 +47,7 @@ func (h *BaseHTTPHandler) Execute(handler HandlerFn) http.HandlerFunc {
 						Status:  resultError.Status,
 						Message: resultError.Message,
 						Error:   resultError.Error,
-						Data:    resultError.Data,
+						Data:    types.Interface{},
 					},
 				)
 			}

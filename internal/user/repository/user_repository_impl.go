@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"errors"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/exp/slog"
 	"ps-cats-social/internal/user/model"
+	"ps-cats-social/pkg/errs"
 	"strings"
 )
 
@@ -34,13 +34,10 @@ func (r *userRepo) RegisterUser(user *model.User) (int64, error) {
 	query := "insert into users " +
 		"(email, name, password) values($1,$2,$3)"
 
-	//TODO using becrypt
-	password := user.Password
-
-	result, err := r.db.Exec(query, user.Email, user.Name, password)
+	result, err := r.db.Exec(query, user.Email, user.Name, user.Password)
 	if err != nil {
-		if strings.Contains(err.Error(), "Duplicate entry") {
-			return 0, errors.New("email already exist")
+		if strings.Contains(err.Error(), "users_email_key") {
+			return 0, errs.NewErrDataConflict("email already exist", user.Email)
 		}
 		slog.Warn("Error registering user")
 		return 0, err
