@@ -92,6 +92,7 @@ func initLogger() {
 
 func runHttpCommand(cmd *cobra.Command, args []string) error {
 	initLogger()
+	initInfra()
 	//server.InitDBMigrate()
 	// init datadog tracer
 	rules := []tracer.SamplingRule{tracer.RateRule(1)}
@@ -140,7 +141,7 @@ func dbInitConnection() *sqlx.DB {
 	host := "localhost"
 	port := "5432"
 	uname := "postgres"
-	pass := ""
+	pass := "123"
 	dbname := "cats_social"
 
 	return mysqlqgen.Init(host, port, uname, pass, dbname, shared.ServiceName)
@@ -151,6 +152,6 @@ func initInfra() {
 
 	userRepository := repository.NewUserRepository(dbConnection)
 	userService := service.NewUserService(userRepository)
-	userHandler = userhandler.NewUserHTTPHandler(userService)
+	userHandler = userhandler.NewUserHTTPHandler(baseHandler, userService)
 
 }
