@@ -1,9 +1,9 @@
 package response
 
 type WebResponse struct {
-	Status     int         `json:"status"`
+	Status     int         `json:"-"`
 	Message    string      `json:"message"`
-	Error      interface{} `json:"error"`
+	Error      interface{} `json:"-"`
 	Data       interface{} `json:"data"`
 	Pagination interface{} `json:"pagination,omitempty"`
 }
