@@ -30,14 +30,16 @@ func JWTAuthMiddleware(fn http.HandlerFunc) http.HandlerFunc {
 		}
 
 		email := claims["email"].(string)
-		if email == "" {
+		userId := claims["user_id"].(int64)
+		if email == "" || userId == 0 {
 			slog.Error("Invalid claims")
 			writeUnauthorized(rw)
 			return
 		}
 
-		r2 := r.WithContext(context.WithValue(r.Context(), "email", email))
+		r2 := r.WithContext(context.WithValue(r.Context(), "email", email)).WithContext(context.WithValue(r.Context(), "user_id", userId))
 		slog.Debug("AUTHORIZED", "email", r2.Context().Value("email"))
+		slog.Debug("AUTHORIZED", "user_id", r2.Context().Value("user_id"))
 
 		fn(rw, r2)
 	}
@@ -63,14 +65,16 @@ func extractJWTTokenFromHeader(r *http.Request) (string, error) {
 }
 
 type Claims struct {
-	Email string `json:"email"`
+	Email  string `json:"email"`
+	UserId int64  `json:"user_id"`
 	jwt.Claims
 }
 
-func GenerateJWT(email string) (string, error) {
+func GenerateJWT(email string, id int64) (string, error) {
 	// Create token
 	claims := Claims{
-		Email: email,
+		Email:  email,
+		UserId: id,
 		Claims: jwt.MapClaims{
 			"exp": time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours
 		},

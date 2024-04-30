@@ -26,7 +26,7 @@ func (h *UserHTTPHandler) RegisterUserHandler(ctx *app.Context) *response.WebRes
 	err := json.Unmarshal(jsonString, &request)
 	helper.PanicIfError(err, "request body is failed to parsed")
 
-	result, err := h.userService.RegisterUser(ctx.Context(), request)
+	result, err := h.userService.RegisterUser(request)
 	if err != nil {
 		return &response.WebResponse{
 			Status:  400,
@@ -48,7 +48,7 @@ func (h *UserHTTPHandler) Login(ctx *app.Context) *response.WebResponse {
 	err := json.Unmarshal(jsonString, &request)
 	helper.PanicIfError(err, "request body is failed to parsed")
 
-	result, err := h.userService.Login(ctx.Context(), request)
+	result, err := h.userService.Login(request)
 	helper.PanicIfError(err, "failed to login")
 
 	return &response.WebResponse{

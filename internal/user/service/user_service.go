@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"ps-cats-social/internal/user/dto"
 	"ps-cats-social/internal/user/model"
 	"ps-cats-social/internal/user/repository"
@@ -19,14 +18,14 @@ func NewUserService(userRepository repository.UserRepository) *UserService {
 	}
 }
 
-func (s *UserService) RegisterUser(ctx context.Context, req dto.RegisterReq) (*dto.RegisterResp, error) {
+func (s *UserService) RegisterUser(req dto.RegisterReq) (*dto.RegisterResp, error) {
 	email := req.Email
-	err := s.userRepository.RegisterUser(model.NewUser(req))
+	id, err := s.userRepository.RegisterUser(model.NewUser(req))
 
 	if err != nil {
 		return &dto.RegisterResp{}, err
 	}
-	token, _ := middleware.GenerateJWT(email)
+	token, _ := middleware.GenerateJWT(email, id)
 	return &dto.RegisterResp{
 		Email:       req.Email,
 		Name:        req.Name,
@@ -34,14 +33,14 @@ func (s *UserService) RegisterUser(ctx context.Context, req dto.RegisterReq) (*d
 	}, nil
 }
 
-func (s *UserService) Login(ctx context.Context, req dto.LoginReq) (*dto.RegisterResp, error) {
+func (s *UserService) Login(req dto.LoginReq) (*dto.RegisterResp, error) {
 	usr, err := s.userRepository.GetUserByEmail(req.Email)
 
 	if err != nil {
 		return &dto.RegisterResp{}, errs.NewErrDataNotFound("user not found ", req.Email, errs.ErrorData{})
 	}
 
-	token, _ := middleware.GenerateJWT(usr.Email)
+	token, _ := middleware.GenerateJWT(usr.Email, usr.ID)
 
 	return &dto.RegisterResp{
 		Email:       usr.Email,
