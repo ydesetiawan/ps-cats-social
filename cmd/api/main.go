@@ -12,7 +12,6 @@ import (
 	stdlog "log"
 	"os"
 	"ps-cats-social/cmd/api/server"
-	aclhandler "ps-cats-social/internal/accesscontrol/handler"
 	"ps-cats-social/internal/shared"
 	userhandler "ps-cats-social/internal/user/handler"
 	"ps-cats-social/internal/user/repository"
@@ -34,7 +33,6 @@ var httpCmd = &cobra.Command{
 var (
 	params      map[string]string
 	baseHandler *bhandler.BaseHTTPHandler
-	aclHandler  *aclhandler.HTTPHandler
 	userHandler *userhandler.UserHTTPHandler
 )
 
@@ -126,7 +124,7 @@ func runHttpCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	httpServer := server.NewServer(
-		baseHandler, aclHandler, userHandler,
+		baseHandler, userHandler,
 	)
 	return httpServer.Run()
 }
