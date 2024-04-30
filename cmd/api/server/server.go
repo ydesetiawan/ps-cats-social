@@ -7,7 +7,6 @@ import (
 	muxtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gorilla/mux"
 	"log/slog"
 	"net/http"
-	aclhandler "ps-cats-social/internal/accesscontrol/handler"
 	"ps-cats-social/internal/shared"
 	"ps-cats-social/internal/user/handler"
 	bhandler "ps-cats-social/pkg/base/handler"
@@ -15,24 +14,21 @@ import (
 )
 
 type Server struct {
-	baseHandler              *bhandler.BaseHTTPHandler
-	accessControlListHandler *aclhandler.HTTPHandler
-	userHandler              *handler.UserHTTPHandler
-	router                   *muxtrace.Router
-	port                     int
+	baseHandler *bhandler.BaseHTTPHandler
+	userHandler *handler.UserHTTPHandler
+	router      *muxtrace.Router
+	port        int
 }
 
 func NewServer(
 	bHandler *bhandler.BaseHTTPHandler,
-	accessControlListHandler *aclhandler.HTTPHandler,
 	userHandler *handler.UserHTTPHandler,
 ) Server {
 	return Server{
-		baseHandler:              bHandler,
-		accessControlListHandler: accessControlListHandler,
-		userHandler:              userHandler,
-		router:                   muxtrace.NewRouter(muxtrace.WithServiceName(shared.ServiceName)),
-		port:                     8080,
+		baseHandler: bHandler,
+		userHandler: userHandler,
+		router:      muxtrace.NewRouter(muxtrace.WithServiceName(shared.ServiceName)),
+		port:        8080,
 	}
 }
 
