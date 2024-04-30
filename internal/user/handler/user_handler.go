@@ -27,17 +27,11 @@ func (h *UserHTTPHandler) RegisterUserHandler(ctx *app.Context) *response.WebRes
 	helper.PanicIfError(err, "request body is failed to parsed")
 
 	result, err := h.userService.RegisterUser(request)
-	if err != nil {
-		return &response.WebResponse{
-			Status:  400,
-			Message: "Bad Request",
-			Data:    result,
-		}
-	}
+	helper.PanicIfError(err, "register user failed")
 
 	return &response.WebResponse{
 		Status:  200,
-		Message: "Created",
+		Message: "User registered successfully",
 		Data:    result,
 	}
 }

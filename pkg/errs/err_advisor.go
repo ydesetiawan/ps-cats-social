@@ -23,34 +23,28 @@ func ErrorAdvisor(err error) response.WebResponse {
 	switch {
 	case errors.As(err, &errUnprocessableEntity):
 		resp.Status = errUnprocessableEntity.StatusCode
-		resp.Message = errUnprocessableEntity.StatusMessage
+		resp.Message = errUnprocessableEntity.Error()
 		resp.Error = errUnprocessableEntity.ErrorData
-		resp.Data = errUnprocessableEntity.Error()
 	case errors.As(err, &errBadRequest):
 		resp.Status = errBadRequest.StatusCode
-		resp.Message = errBadRequest.StatusMessage
+		resp.Message = errBadRequest.Error()
 		resp.Error = errBadRequest.ErrorData
-		resp.Data = errBadRequest.Error()
 	case errors.As(err, &errDataConflict):
 		resp.Status = errDataConflict.StatusCode
-		resp.Message = errDataConflict.StatusMessage
+		resp.Message = errDataConflict.Error()
 		resp.Error = errDataConflict.ErrorData
-		resp.Data = errDataConflict.Error()
 	case errors.As(err, &errDataNotFound):
 		resp.Status = errDataNotFound.StatusCode
-		resp.Message = errDataNotFound.StatusMessage
+		resp.Message = errDataNotFound.Error()
 		resp.Error = errDataNotFound.ErrorData
-		resp.Data = errDataNotFound.Error()
 	case errors.As(err, &errForbidden):
 		resp.Status = errForbidden.StatusCode
-		resp.Message = errForbidden.StatusMessage
+		resp.Message = errForbidden.Error()
 		resp.Error = errForbidden.ErrorData
-		resp.Data = errForbidden.Error()
 	case errors.As(err, &errUnauthorized):
 		resp.Status = errUnauthorized.StatusCode
-		resp.Message = errUnauthorized.StatusMessage
+		resp.Message = errUnauthorized.Error()
 		resp.Error = errUnauthorized.ErrorData
-		resp.Data = errUnauthorized.Error()
 	}
 
 	return resp
