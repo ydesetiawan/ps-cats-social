@@ -16,21 +16,21 @@ func NewUserRepository(db *sqlx.DB) UserRepository {
 	return &userRepo{db: db}
 }
 
-func (r *userRepo) GetUserByUsername(username string) (model.User, error) {
+func (r *userRepo) GetUserByEmail(email string) (model.User, error) {
 	var user model.User
 	query := "select * from users where email = $1 "
-	err := r.db.Get(&user, query, username)
+	err := r.db.Get(&user, query, email)
 	return user, err
 }
 
 func (ur *userRepo) RegisterUser(user *model.User) error {
 	query := "insert into users " +
-		"(id, email, name, password) values(?,?,?,?)"
+		"(email, name, password) values($1,$2,$3)"
 
 	//TODO using becrypt
 	password := user.Password
 
-	_, err := ur.db.Exec(query, user.ID, user.Email, user.Name, password)
+	_, err := ur.db.Exec(query, user.Email, user.Name, password)
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
 			return errors.New("email already exist")

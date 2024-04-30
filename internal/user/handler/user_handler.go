@@ -44,19 +44,12 @@ func (h *UserHTTPHandler) RegisterUserHandler(ctx *app.Context) *response.WebRes
 
 func (h *UserHTTPHandler) Login(ctx *app.Context) *response.WebResponse {
 	var request dto.LoginReq
-	request.Email = "edy@gmail.com"
-	//jsonString, _ := json.Marshal(ctx.GetJsonBody())
-	//err := json.Unmarshal(jsonString, &request)
-	//helper.PanicIfError(err, "request body is failed to parsed")
+	jsonString, _ := json.Marshal(ctx.GetJsonBody())
+	err := json.Unmarshal(jsonString, &request)
+	helper.PanicIfError(err, "request body is failed to parsed")
 
 	result, err := h.userService.Login(ctx.Context(), request)
-	if err != nil {
-		return &response.WebResponse{
-			Status:  400,
-			Message: "Bad Request",
-			Data:    result,
-		}
-	}
+	helper.PanicIfError(err, "failed to login")
 
 	return &response.WebResponse{
 		Status:  200,

@@ -3,44 +3,15 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/exp/slog"
 	"net/http"
-	"ps-cats-social/pkg/helper"
 	"ps-cats-social/pkg/httphelper"
 	"ps-cats-social/pkg/httphelper/response"
-	"strings"
-
-	"github.com/golang-jwt/jwt/v5"
-	"ps-cats-social/pkg/authz"
+	"time"
 )
 
-type AccessControlRule struct {
-	Roles         []string
-	AllowedMethod map[string][]string
-}
-
-var AccessControlRules = map[string]AccessControlRule{
-	"owner": {
-		Roles: []string{"owner"},
-		AllowedMethod: map[string][]string{
-			"/public/lo/v1/reminders": {"GET", "POST", "PUT", "DELETE"},
-		},
-	},
-	"ultimate": {
-		Roles: []string{"ultimate"},
-		AllowedMethod: map[string][]string{
-			"/public/lo/v1/access_control_list": {"GET", "POST"},
-			"/public/lo/v1/reminders":           {"GET", "POST"},
-		},
-	},
-	"ultimateLm": {
-		Roles: []string{"ultimate", "list_manager"},
-		AllowedMethod: map[string][]string{
-			"/public/lo/v1/access_control_list": {"GET", "POST", "PUT", "DELETE"},
-			"/public/lo/v1/reminders":           {"GET", "POST", "PUT", "DELETE"},
-		},
-	},
-}
+var jwtKey = []byte("your_secret_key")
 
 func JWTAuthMiddleware(fn http.HandlerFunc) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
@@ -58,64 +29,18 @@ func JWTAuthMiddleware(fn http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		companyId, cidOk := claims["company_id"].(float64)
-		userId, uidOk := claims["user_id"].(float64)
-		if !cidOk || !uidOk {
+		email := claims["email"].(string)
+		if email == "" {
 			slog.Error("Invalid claims")
 			writeUnauthorized(rw)
 			return
 		}
 
-		user, err := constructUserInfo(r, companyId, userId)
-		if err != nil {
-			slog.Error("Failed to construct user info", "error", err)
-			writeUnauthorized(rw)
-			return
-		}
-
-		validRole, err := validateUserRoles(r.URL.Path, r.Method, user)
-		if err != nil || !validRole {
-			slog.Error("Invalid roles", "error", err)
-			writeUnauthorized(rw)
-			return
-		}
-
-		r2 := r.WithContext(context.WithValue(r.Context(), "user_info", user))
-		slog.Debug("AUTHORIZED", "user_info", r2.Context().Value("user_info"))
+		r2 := r.WithContext(context.WithValue(r.Context(), "email", email))
+		slog.Debug("AUTHORIZED", "email", r2.Context().Value("email"))
 
 		fn(rw, r2)
 	}
-}
-
-func validateUserRoles(apiEndpoint string, method string, user map[string]interface{}) (bool, error) {
-	roles, ok := user["roles"].([]string)
-	if !ok || len(roles) == 0 {
-		return false, fmt.Errorf("empty or invalid roles")
-	}
-
-	for _, rule := range AccessControlRules {
-		if helper.ContainsAll(roles, rule.Roles) {
-			for path, allowedMethods := range rule.AllowedMethod {
-				if strings.HasPrefix(apiEndpoint, path) && sliceContainsString(allowedMethods, method) {
-					return true, nil
-				}
-			}
-		}
-	}
-
-	return false, nil
-}
-
-func sliceContainsString(slice []string, target string) bool {
-	if slice == nil || len(slice) == 0 {
-		return false
-	}
-	for _, val := range slice {
-		if val == target {
-			return true
-		}
-	}
-	return false
 }
 
 func writeUnauthorized(rw http.ResponseWriter) {
@@ -137,6 +62,44 @@ func extractJWTTokenFromHeader(r *http.Request) (string, error) {
 	return authToken[len("Bearer "):], nil
 }
 
+type Claims struct {
+	Email string `json:"email"`
+	jwt.Claims
+}
+
+func GenerateJWT(email string) (string, error) {
+	// Create token
+	claims := Claims{
+		Email: email,
+		Claims: jwt.MapClaims{
+			"exp": time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Generate encoded token and return it
+	return token.SignedString(jwtKey)
+}
+
+func ParseJWT(tokenString string) (*Claims, error) {
+	// Parse token
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if token is valid
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	return claims, nil
+}
+
 func parseJWTToClaims(jwtToken string) (jwt.MapClaims, error) {
 	token, _, err := jwt.NewParser().ParseUnverified(jwtToken, jwt.MapClaims{})
 	if err != nil {
@@ -151,16 +114,4 @@ func parseJWTToClaims(jwtToken string) (jwt.MapClaims, error) {
 	}
 
 	return claims, nil
-}
-
-func constructUserInfo(r *http.Request, companyId, userId float64) (map[string]interface{}, error) {
-	userRoles, err := authz.ExtractUserRoles(r)
-	if err != nil {
-		return nil, err
-	}
-	return map[string]interface{}{
-		"company_id": int(companyId),
-		"user_id":    int(userId),
-		"roles":      userRoles,
-	}, nil
 }
