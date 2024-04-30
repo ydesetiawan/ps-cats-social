@@ -9,6 +9,7 @@ import (
 	"net/http"
 	aclhandler "ps-cats-social/internal/accesscontrol/handler"
 	"ps-cats-social/internal/shared"
+	"ps-cats-social/internal/user/handler"
 	bhandler "ps-cats-social/pkg/base/handler"
 	"time"
 )
@@ -16,6 +17,7 @@ import (
 type Server struct {
 	baseHandler              *bhandler.BaseHTTPHandler
 	accessControlListHandler *aclhandler.HTTPHandler
+	userHandler              *handler.UserHTTPHandler
 	router                   *muxtrace.Router
 	port                     int
 }
@@ -23,10 +25,12 @@ type Server struct {
 func NewServer(
 	bHandler *bhandler.BaseHTTPHandler,
 	accessControlListHandler *aclhandler.HTTPHandler,
+	userHandler *handler.UserHTTPHandler,
 ) Server {
 	return Server{
 		baseHandler:              bHandler,
 		accessControlListHandler: accessControlListHandler,
+		userHandler:              userHandler,
 		router:                   muxtrace.NewRouter(muxtrace.WithServiceName(shared.ServiceName)),
 		port:                     8080,
 	}

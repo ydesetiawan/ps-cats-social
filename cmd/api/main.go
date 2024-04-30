@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
 	"golang.org/x/exp/slog"
@@ -13,8 +14,12 @@ import (
 	"ps-cats-social/cmd/api/server"
 	aclhandler "ps-cats-social/internal/accesscontrol/handler"
 	"ps-cats-social/internal/shared"
+	userhandler "ps-cats-social/internal/user/handler"
+	"ps-cats-social/internal/user/repository"
+	"ps-cats-social/internal/user/service"
 	bhandler "ps-cats-social/pkg/base/handler"
 	"ps-cats-social/pkg/logger"
+	mysqlqgen "ps-cats-social/pkg/psqlqgen"
 	"strings"
 	"time"
 )
@@ -30,6 +35,7 @@ var (
 	params      map[string]string
 	baseHandler *bhandler.BaseHTTPHandler
 	aclHandler  *aclhandler.HTTPHandler
+	userHandler *userhandler.UserHTTPHandler
 )
 
 func main() {
@@ -119,7 +125,32 @@ func runHttpCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	httpServer := server.NewServer(
-		baseHandler, aclHandler,
+		baseHandler, aclHandler, userHandler,
 	)
 	return httpServer.Run()
+}
+
+func dbInitConnection() *sqlx.DB {
+	//host := os.Getenv("DB_HOST")
+	//port := os.Getenv("DB_PORT")
+	//uname := os.Getenv("DB_USER")
+	//pass := os.Getenv("DB_PASSWORD")
+	//dbname := os.Getenv("DB_NAME")
+
+	host := "localhost"
+	port := "5432"
+	uname := "postgres"
+	pass := ""
+	dbname := "cats_social"
+
+	return mysqlqgen.Init(host, port, uname, pass, dbname, shared.ServiceName)
+}
+
+func initInfra() {
+	dbConnection := dbInitConnection()
+
+	userRepository := repository.NewUserRepository(dbConnection)
+	userService := service.NewUserService(userRepository)
+	userHandler = userhandler.NewUserHTTPHandler(userService)
+
 }
