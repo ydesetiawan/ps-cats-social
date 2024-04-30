@@ -47,14 +47,14 @@ func GetDefaultRequestFields(r *http.Request) map[string]interface{} {
 }
 
 // WrapErrorWithStackTrace wrap existing error with stack trace
-// example: "bom not found. data_id: a53d25cc-c576-11ee-8ad4-0242ac17003 [stacktrace: /app/pkg/errs/err_data_not_found.go:29\n/app/internal/bom/repository/repository_impl.go:240\n/app/internal/bom/service/archive.go:36\n/app/internal/bom/handler/archive.go:14\n/app/internal/base/handler/base.go:62\n/app/pkg/middleware/auth_jwt.go:99\n/app/internal/base/handler/base.go:82\n]"
+// example: "bom not found. data_id: a53d25cc-c576-11ee-8ad4-0242ac17003 [stacktrace: /app/pkg/errs/err_data_not_found.go:29\n/app/internal/bom/repository/user_repository_impl.go:240\n/app/internal/bom/service/archive.go:36\n/app/internal/bom/handler/archive.go:14\n/app/internal/base/handler/base.go:62\n/app/pkg/middleware/auth_jwt.go:99\n/app/internal/base/handler/base.go:82\n]"
 // since slog does not support newline so stacktrace will be separated by '\n'
 func WrapErrorWithStackTrace(err error) error {
 	return fmt.Errorf("%w [stacktrace: %s]", err, StackAndFile(2))
 }
 
 // GenerateErrorWithStackTrace generate new error with stack trace
-// example: "bom not found. data_id: a53d25cc-c576-11ee-8ad4-0242ac17003 [stacktrace: /app/pkg/errs/err_data_not_found.go:29\n/app/internal/bom/repository/repository_impl.go:240\n/app/internal/bom/service/archive.go:36\n/app/internal/bom/handler/archive.go:14\n/app/internal/base/handler/base.go:62\n/app/pkg/middleware/auth_jwt.go:99\n/app/internal/base/handler/base.go:82\n]"
+// example: "bom not found. data_id: a53d25cc-c576-11ee-8ad4-0242ac17003 [stacktrace: /app/pkg/errs/err_data_not_found.go:29\n/app/internal/bom/repository/user_repository_impl.go:240\n/app/internal/bom/service/archive.go:36\n/app/internal/bom/handler/archive.go:14\n/app/internal/base/handler/base.go:62\n/app/pkg/middleware/auth_jwt.go:99\n/app/internal/base/handler/base.go:82\n]"
 // since slog does not support newline so stacktrace will be separated by '\n'
 func GenerateErrorWithStackTrace(msg string) error {
 	return fmt.Errorf("%w [stacktrace: %s]", errors.New(msg), StackAndFile(2))
