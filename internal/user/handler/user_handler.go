@@ -30,7 +30,7 @@ func (h *UserHTTPHandler) RegisterUserHandler(ctx *app.Context) *response.WebRes
 	helper.PanicIfError(err, "register user failed")
 
 	return &response.WebResponse{
-		Status:  200,
+		Status:  201,
 		Message: "User registered successfully",
 		Data:    result,
 	}

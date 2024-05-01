@@ -29,9 +29,9 @@ func JWTAuthMiddleware(fn http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		email := claims["email"].(string)
-		userId := claims["user_id"].(int64)
-		if email == "" || userId == 0 {
+		email, emailOk := claims["email"].(string)
+		userId, uidOk := claims["user_id"].(float64)
+		if !emailOk || !uidOk {
 			slog.Error("Invalid claims")
 			writeUnauthorized(rw)
 			return
@@ -70,11 +70,11 @@ type Claims struct {
 	jwt.Claims
 }
 
-func GenerateJWT(email string, id int64) (string, error) {
+func GenerateJWT(email string, userId int64) (string, error) {
 	// Create token
 	claims := Claims{
 		Email:  email,
-		UserId: id,
+		UserId: userId,
 		Claims: jwt.MapClaims{
 			"exp": time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours
 		},
