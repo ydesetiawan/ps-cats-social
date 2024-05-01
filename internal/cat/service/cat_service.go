@@ -27,6 +27,18 @@ func (s *CatService) CreateCat(req dto.CatReq, userId int64) (*dto.CatResp, erro
 	}, err
 }
 
+func (s *CatService) UpdateCatCat(req dto.CatReq, userId int64, catId int64) (*dto.CatResp, error) {
+	cat, err := s.catRepository.UpdateCat(dto.NewCatWithID(req, userId, catId))
+	if err != nil {
+		return &dto.CatResp{}, err
+	}
+
+	return &dto.CatResp{
+		cat.ID,
+		cat.CreatedAt,
+	}, err
+}
+
 func (s *CatService) DeleteCat(catId int64, userId int64) error {
 	err := s.catRepository.DeleteCat(catId, userId)
 	if err != nil {
