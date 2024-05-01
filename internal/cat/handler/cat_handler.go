@@ -24,11 +24,16 @@ func NewCatHttpHandler(catService *service.CatService) *CatHttpHandler {
 
 func (h *CatHttpHandler) GetCat(ctx *app.Context) *response.WebResponse {
 	reqParams := dto.GenerateCatReqParams(ctx)
-
+	cats, err := h.catService.SearchCat(reqParams)
+	helper.PanicIfError(err, "error when SearchCat")
+	message := "Successfully SearchCat"
+	if len(cats) == 0 {
+		message = "Data not found"
+	}
 	return &response.WebResponse{
 		Status:  200,
-		Message: "",
-		Data:    reqParams,
+		Message: message,
+		Data:    cats,
 	}
 }
 

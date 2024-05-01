@@ -2,6 +2,7 @@ package service
 
 import (
 	"ps-cats-social/internal/cat/dto"
+	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/internal/cat/repository"
 )
 
@@ -15,25 +16,33 @@ func NewCatService(catRepository repository.CatRepository) *CatService {
 	}
 }
 
-func (s *CatService) CreateCat(req dto.CatReq, userId int64) (*dto.CatResp, error) {
+func (s *CatService) SearchCat(params map[string]interface{}) ([]model.Cat, error) {
+	result, err := s.catRepository.SearchCat(params)
+	if err != nil {
+		return nil, err
+	}
+	return result, err
+}
+
+func (s *CatService) CreateCat(req dto.CatReq, userId int64) (*dto.SavedCatResp, error) {
 	result, err := s.catRepository.CreateCat(dto.NewCat(req, userId))
 	if err != nil {
-		return &dto.CatResp{}, err
+		return &dto.SavedCatResp{}, err
 	}
 
-	return &dto.CatResp{
+	return &dto.SavedCatResp{
 		result.ID,
 		result.CreatedAt,
 	}, err
 }
 
-func (s *CatService) UpdateCatCat(req dto.CatReq, userId int64, catId int64) (*dto.CatResp, error) {
+func (s *CatService) UpdateCatCat(req dto.CatReq, userId int64, catId int64) (*dto.SavedCatResp, error) {
 	cat, err := s.catRepository.UpdateCat(dto.NewCatWithID(req, userId, catId))
 	if err != nil {
-		return &dto.CatResp{}, err
+		return &dto.SavedCatResp{}, err
 	}
 
-	return &dto.CatResp{
+	return &dto.SavedCatResp{
 		cat.ID,
 		cat.CreatedAt,
 	}, err
