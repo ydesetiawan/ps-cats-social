@@ -22,6 +22,16 @@ func NewCatHttpHandler(catService *service.CatService) *CatHttpHandler {
 	}
 }
 
+func (h *CatHttpHandler) GetCat(ctx *app.Context) *response.WebResponse {
+	reqParams := dto.GenerateCatReqParams(ctx)
+
+	return &response.WebResponse{
+		Status:  200,
+		Message: "",
+		Data:    reqParams,
+	}
+}
+
 func (h *CatHttpHandler) CreateCat(ctx *app.Context) *response.WebResponse {
 	var request dto.CatReq
 	jsonString, _ := json.Marshal(ctx.GetJsonBody())
@@ -48,6 +58,35 @@ func (h *CatHttpHandler) CreateCat(ctx *app.Context) *response.WebResponse {
 	return &response.WebResponse{
 		Status:  201,
 		Message: "cat already created successfully",
+		Data:    res,
+	}
+}
+
+func (h *CatHttpHandler) UpdateCat(ctx *app.Context) *response.WebResponse {
+	vars := mux.Vars(ctx.Request)
+	id, _ := vars["id"]
+	catId, _ := strconv.Atoi(id)
+
+	var request dto.CatReq
+	jsonString, _ := json.Marshal(ctx.GetJsonBody())
+	err := json.Unmarshal(jsonString, &request)
+	helper.PanicIfError(err, "request body is failed to parsed")
+
+	err = dto.ValidateCatReq(request)
+	if err != nil {
+		return &response.WebResponse{
+			Status:  400,
+			Message: "Bad Request : " + err.Error(),
+		}
+	}
+	userId, err := shared.ExtractUserId(ctx)
+	helper.PanicIfError(err, "error when ExtractUserId")
+	res, err := h.catService.UpdateCatCat(request, userId, int64(catId))
+	helper.PanicIfError(err, "error when UpdateCatCat")
+
+	return &response.WebResponse{
+		Status:  201,
+		Message: "cat already updated successfully",
 		Data:    res,
 	}
 }

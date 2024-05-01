@@ -19,12 +19,36 @@ const (
 	Birman           Race = "Birman"
 )
 
+func IsRaceExists(val string) bool {
+	races := []Race{Persian, MaineCoon, Siamese, Ragdoll, Bengal, Sphynx, BritishShorthair, Abyssinian, ScottishFold, Birman}
+
+	race := Race(val)
+	for _, r := range races {
+		if r == race {
+			return true
+		}
+	}
+	return false
+}
+
 type Sex string
 
 const (
 	Male   Sex = "male"
 	Female Sex = "female"
 )
+
+func IsSexExists(val string) bool {
+	sexs := []Sex{Male, Female}
+
+	sex := Sex(val)
+	for _, s := range sexs {
+		if s == sex {
+			return true
+		}
+	}
+	return false
+}
 
 type Cat struct {
 	ID          int64     `json:"id" db:"id"`
