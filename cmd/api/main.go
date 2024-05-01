@@ -12,6 +12,7 @@ import (
 	stdlog "log"
 	"os"
 	"ps-cats-social/cmd/api/server"
+	catbandler "ps-cats-social/internal/cat/handler"
 	"ps-cats-social/internal/shared"
 	userhandler "ps-cats-social/internal/user/handler"
 	"ps-cats-social/internal/user/repository"
@@ -34,6 +35,7 @@ var (
 	params      map[string]string
 	baseHandler *bhandler.BaseHTTPHandler
 	userHandler *userhandler.UserHTTPHandler
+	catHandler  *catbandler.CatHttpHandler
 )
 
 func main() {
@@ -66,7 +68,7 @@ func initLogger() {
 		log, err := logger.SlogOption{
 			Resource: map[string]string{
 				"service.name":        shared.ServiceName,
-				"service.ns":          "scm-production",
+				"service.ns":          "cats_social",
 				"service.instance_id": "random-uuid",
 				"service.version":     "v.0",
 				"service.env":         "staging",
@@ -124,7 +126,7 @@ func runHttpCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	httpServer := server.NewServer(
-		baseHandler, userHandler,
+		baseHandler, userHandler, catHandler,
 	)
 	return httpServer.Run()
 }

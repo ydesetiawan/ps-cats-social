@@ -34,7 +34,7 @@ func (r *userRepo) RegisterUser(user *model.User) (int64, error) {
 	query := "insert into users " +
 		"(email, name, password) values($1,$2,$3)"
 
-	result, err := r.db.Exec(query, user.Email, user.Name, user.Password)
+	_, err := r.db.Exec(query, user.Email, user.Name, user.Password)
 	if err != nil {
 		if strings.Contains(err.Error(), "users_email_key") {
 			return 0, errs.NewErrDataConflict("email already exist", user.Email)
@@ -43,6 +43,10 @@ func (r *userRepo) RegisterUser(user *model.User) (int64, error) {
 		return 0, err
 	}
 
-	id, _ := result.LastInsertId()
-	return id, nil
+	savedUser, err := r.GetUserByEmail(user.Email)
+	if err != nil {
+		return 0, errs.NewErrUnprocessableEntity("email not found", "", errs.ErrorData{})
+	}
+
+	return savedUser.ID, nil
 }
