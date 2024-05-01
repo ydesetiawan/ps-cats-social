@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"ps-cats-social/internal/cat/dto"
+	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/internal/cat/service"
 	"ps-cats-social/internal/shared"
 	"ps-cats-social/pkg/base/app"
@@ -23,12 +24,20 @@ func NewCatHttpHandler(catService *service.CatService) *CatHttpHandler {
 }
 
 func (h *CatHttpHandler) GetCat(ctx *app.Context) *response.WebResponse {
-	reqParams := dto.GenerateCatReqParams(ctx)
+	reqParams, err := dto.GenerateCatReqParams(ctx)
+	if err != nil {
+		return &response.WebResponse{
+			Status:  200,
+			Message: err.Error(),
+			Data:    []model.Cat{},
+		}
+	}
 	cats, err := h.catService.SearchCat(reqParams)
 	helper.PanicIfError(err, "error when SearchCat")
 	message := "Successfully SearchCat"
 	if len(cats) == 0 {
-		message = "Data not found"
+		message = "DATA NOT FOUND"
+		cats = []model.Cat{}
 	}
 	return &response.WebResponse{
 		Status:  200,

@@ -1,8 +1,10 @@
 package dto
 
 import (
+	"errors"
 	"github.com/go-playground/validator/v10"
 	"ps-cats-social/internal/cat/model"
+	"ps-cats-social/internal/shared"
 	"ps-cats-social/pkg/base/app"
 	"strconv"
 	"time"
@@ -70,7 +72,7 @@ func IsAgeTypeExists(val string) bool {
 	return false
 }
 
-func GenerateCatReqParams(ctx *app.Context) map[string]interface{} {
+func GenerateCatReqParams(ctx *app.Context) (map[string]interface{}, error) {
 	params := make(map[string]interface{})
 
 	reqCatId, err := strconv.Atoi(ctx.Request.URL.Query().Get("id"))
@@ -91,17 +93,31 @@ func GenerateCatReqParams(ctx *app.Context) map[string]interface{} {
 	params["offset"] = reqOffset
 
 	reqRace := ctx.Request.URL.Query().Get("race")
-	if model.IsRaceExists(reqRace) {
-		params["race"] = model.Race(reqRace)
+	if "" != reqRace {
+		if model.IsRaceExists(reqRace) {
+			params["race"] = model.Race(reqRace)
+		} else {
+			return nil, errors.New("DATA NOT FOUND")
+		}
+
 	}
 
 	reqSex := ctx.Request.URL.Query().Get("sex")
-	if model.IsSexExists(reqSex) {
-		params["sex"] = model.Race(reqSex)
+	if "" != reqSex {
+		if model.IsSexExists(reqSex) {
+			params["sex"] = model.Race(reqSex)
+		} else {
+			return nil, errors.New("DATA NOT FOUND")
+		}
 	}
+
 	reqAgeInMonth := ctx.Request.URL.Query().Get("ageInMonth")
-	if IsAgeTypeExists(reqAgeInMonth) {
-		params["ageInMonth"] = AgeType(reqAgeInMonth)
+	if "" != reqAgeInMonth {
+		if IsAgeTypeExists(reqAgeInMonth) {
+			params["ageInMonth"] = AgeType(reqAgeInMonth)
+		} else {
+			return nil, errors.New("DATA NOT FOUND")
+		}
 	}
 
 	reqHasMatched := ctx.Request.URL.Query().Get("hasMatched")
@@ -112,8 +128,9 @@ func GenerateCatReqParams(ctx *app.Context) map[string]interface{} {
 
 	reqOwned := ctx.Request.URL.Query().Get("owned")
 	owned, err := strconv.ParseBool(reqOwned)
-	if err == nil {
-		params["owned"] = owned
+	if err == nil && owned {
+		userId, _ := shared.ExtractUserId(ctx)
+		params["userID"] = userId
 	}
 
 	reqSearch := ctx.Request.URL.Query().Get("search")
@@ -121,5 +138,5 @@ func GenerateCatReqParams(ctx *app.Context) map[string]interface{} {
 		params["search"] = "%" + reqSearch + "%"
 	}
 
-	return params
+	return params, nil
 }
