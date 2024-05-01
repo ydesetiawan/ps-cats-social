@@ -16,13 +16,22 @@ func NewCatService(catRepository repository.CatRepository) *CatService {
 }
 
 func (s *CatService) CreateCat(req dto.CatReq, userId int64) (*dto.CatResp, error) {
-	result, err := s.catRepository.SaveCat(dto.NewCat(req, userId))
+	result, err := s.catRepository.CreateCat(dto.NewCat(req, userId))
 	if err != nil {
-		return nil, err
+		return &dto.CatResp{}, err
 	}
 
 	return &dto.CatResp{
 		result.ID,
 		result.CreatedAt,
 	}, err
+}
+
+func (s *CatService) DeleteCat(catId int64, userId int64) error {
+	err := s.catRepository.DeleteCat(catId, userId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -37,7 +37,14 @@ func JWTAuthMiddleware(fn http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		r2 := r.WithContext(context.WithValue(r.Context(), "email", email)).WithContext(context.WithValue(r.Context(), "user_id", userId))
+		user, err := constructUserInfo(email, userId)
+		if err != nil {
+			slog.Error("Failed to construct user info", "error", err)
+			writeUnauthorized(rw)
+			return
+		}
+
+		r2 := r.WithContext(context.WithValue(r.Context(), "user_info", user))
 		slog.Debug("AUTHORIZED", "email", r2.Context().Value("email"))
 		slog.Debug("AUTHORIZED", "user_id", r2.Context().Value("user_id"))
 
@@ -86,22 +93,11 @@ func GenerateJWT(email string, userId int64) (string, error) {
 	return token.SignedString(jwtKey)
 }
 
-func ParseJWT(tokenString string) (*Claims, error) {
-	// Parse token
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// Check if token is valid
-	claims, ok := token.Claims.(*Claims)
-	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invalid token")
-	}
-
-	return claims, nil
+func constructUserInfo(email string, userId float64) (map[string]interface{}, error) {
+	return map[string]interface{}{
+		"email":   email,
+		"user_id": int64(userId),
+	}, nil
 }
 
 func parseJWTToClaims(jwtToken string) (jwt.MapClaims, error) {

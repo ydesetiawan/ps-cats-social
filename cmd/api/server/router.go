@@ -12,5 +12,6 @@ func (s *Server) setupRouter() {
 	v1.HandleFunc("/user/login", s.baseHandler.RunAction(s.userHandler.Login)).Methods("POST")
 
 	v1.HandleFunc("/cat", s.baseHandler.RunActionAuth(s.catHandler.CreateCat)).Methods("POST")
+	v1.HandleFunc("/cat/{id}", s.baseHandler.RunActionAuth(s.catHandler.DeleteCat)).Methods("DELETE")
 
 }
