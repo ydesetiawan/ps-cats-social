@@ -8,29 +8,29 @@ import (
 	"strings"
 )
 
-type userRepo struct {
+type userRepositoryImpl struct {
 	db *sqlx.DB
 }
 
-func NewUserRepository(db *sqlx.DB) UserRepository {
-	return &userRepo{db: db}
+func NewUserRepositoryImpl(db *sqlx.DB) UserRepository {
+	return &userRepositoryImpl{db: db}
 }
 
-func (r *userRepo) GetUserByEmail(email string) (model.User, error) {
+func (r *userRepositoryImpl) GetUserByEmail(email string) (model.User, error) {
 	var user model.User
 	query := "select * from users where email = $1 "
 	err := r.db.Get(&user, query, email)
 	return user, err
 }
 
-func (r *userRepo) GetUserByEmailAndId(email string, id int64) (model.User, error) {
+func (r *userRepositoryImpl) GetUserByEmailAndId(email string, id int64) (model.User, error) {
 	var user model.User
 	query := "select * from users where email = $1 and id = $2 "
 	err := r.db.Get(&user, query, email, id)
 	return user, err
 }
 
-func (r *userRepo) RegisterUser(user *model.User) (int64, error) {
+func (r *userRepositoryImpl) RegisterUser(user *model.User) (int64, error) {
 	query := "insert into users " +
 		"(email, name, password) values($1,$2,$3)"
 

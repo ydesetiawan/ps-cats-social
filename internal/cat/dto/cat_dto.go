@@ -3,6 +3,7 @@ package dto
 import (
 	"github.com/go-playground/validator/v10"
 	"ps-cats-social/internal/cat/model"
+	"time"
 )
 
 type CatReq struct {
@@ -14,8 +15,23 @@ type CatReq struct {
 	ImageUrls   []string   `json:"imageUrls" validate:"required,min=1,dive,required,url"`
 }
 
-// ValidateCatReq validates the CatReq structure
+func NewCat(req CatReq, userId int64) *model.Cat {
+	return &model.Cat{
+		UserID:      userId,
+		Name:        req.Name,
+		Race:        req.Race,
+		Sex:         req.Sex,
+		AgeInMonth:  req.AgeInMonth,
+		Description: req.Description,
+	}
+}
+
 func ValidateCatReq(catReq CatReq) error {
 	validate := validator.New()
 	return validate.Struct(catReq)
+}
+
+type CatResp struct {
+	ID        int64     `json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
 }

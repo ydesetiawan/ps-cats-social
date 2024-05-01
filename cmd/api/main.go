@@ -12,11 +12,13 @@ import (
 	stdlog "log"
 	"os"
 	"ps-cats-social/cmd/api/server"
-	catbandler "ps-cats-social/internal/cat/handler"
+	cathandler "ps-cats-social/internal/cat/handler"
+	catrepository "ps-cats-social/internal/cat/repository"
+	catservice "ps-cats-social/internal/cat/service"
 	"ps-cats-social/internal/shared"
 	userhandler "ps-cats-social/internal/user/handler"
-	"ps-cats-social/internal/user/repository"
-	"ps-cats-social/internal/user/service"
+	userrepository "ps-cats-social/internal/user/repository"
+	userservice "ps-cats-social/internal/user/service"
 	bhandler "ps-cats-social/pkg/base/handler"
 	"ps-cats-social/pkg/logger"
 	mysqlqgen "ps-cats-social/pkg/psqlqgen"
@@ -35,7 +37,7 @@ var (
 	params      map[string]string
 	baseHandler *bhandler.BaseHTTPHandler
 	userHandler *userhandler.UserHTTPHandler
-	catHandler  *catbandler.CatHttpHandler
+	catHandler  *cathandler.CatHttpHandler
 )
 
 func main() {
@@ -150,8 +152,12 @@ func dbInitConnection() *sqlx.DB {
 func initInfra() {
 	dbConnection := dbInitConnection()
 
-	userRepository := repository.NewUserRepository(dbConnection)
-	userService := service.NewUserService(userRepository)
+	userRepository := userrepository.NewUserRepositoryImpl(dbConnection)
+	userService := userservice.NewUserService(userRepository)
 	userHandler = userhandler.NewUserHTTPHandler(baseHandler, userService)
+
+	catRepository := catrepository.NewCatRepositoryImpl(dbConnection)
+	catService := catservice.NewCatService(catRepository)
+	catHandler = cathandler.NewCatHttpHandler(catService)
 
 }

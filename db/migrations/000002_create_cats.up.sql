@@ -6,7 +6,7 @@ CREATE TABLE cats (
     user_id SERIAL NOT NULL,
     name VARCHAR(30) NOT NULL,
     race race_enum NOT NULL,
-    sex sex_enum NOT NULL,
+    sex sex_enum NOT NULL,,,
     age_in_month INT NOT NULL,
     description VARCHAR(200) NOT NULL,
     has_matched BOOLEAN NOT NULL DEFAULT false,

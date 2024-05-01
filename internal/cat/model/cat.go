@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Race string
 
@@ -30,14 +32,15 @@ type Cat struct {
 	Name        string    `json:"name" db:"name"`
 	Race        Race      `json:"race" db:"race"`
 	Sex         Sex       `json:"sex" db:"sex"`
-	AgeInMonths int       `json:"age_in_months" db:"age_in_months"`
+	AgeInMonth  int       `json:"age_in_month" db:"age_in_month"`
 	Description string    `json:"description" db:"description"`
 	HasMatched  bool      `json:"has_matched" db:"has_matched"`
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 }
 
 type CatImage struct {
-	ID   int64  `json:"id" db:"id"`
-	Name string `json:"name" db:"name"`
-	URL  string `json:"url" db:"url"`
+	ID    int64  `json:"id" db:"id"`
+	CatID int64  `json:"cat_id" db:"cat_id"`
+	Name  string `json:"name" db:"name"`
+	URL   string `json:"url" db:"url"`
 }
