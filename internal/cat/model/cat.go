@@ -52,7 +52,7 @@ func IsSexExists(val string) bool {
 
 type Cat struct {
 	ID          int64     `json:"id" db:"id"`
-	UserID      int64     `json:"user_id" db:"user_id"`
+	UserID      int64     `json:"-" db:"user_id"`
 	Name        string    `json:"name" db:"name"`
 	Race        Race      `json:"race" db:"race"`
 	Sex         Sex       `json:"sex" db:"sex"`

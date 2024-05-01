@@ -45,7 +45,7 @@ func ValidateCatReq(catReq CatReq) error {
 	return validate.Struct(catReq)
 }
 
-type CatResp struct {
+type SavedCatResp struct {
 	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 }
@@ -70,63 +70,56 @@ func IsAgeTypeExists(val string) bool {
 	return false
 }
 
-type CatReqParams struct {
-	ID         int64
-	Limit      int
-	Offset     int
-	Race       model.Race
-	Sex        model.Sex
-	AgeType    AgeType
-	HasMatched bool
-	Owned      bool
-	Search     string
-}
+func GenerateCatReqParams(ctx *app.Context) map[string]interface{} {
+	params := make(map[string]interface{})
 
-func GenerateCatReqParams(ctx *app.Context) CatReqParams {
 	reqCatId, err := strconv.Atoi(ctx.Request.URL.Query().Get("id"))
-	if err != nil {
-		reqCatId = 0
+	if err == nil {
+		params["id"] = reqCatId
 	}
 
 	reqLimit, err := strconv.Atoi(ctx.Request.URL.Query().Get("limit"))
 	if err != nil {
 		reqLimit = 5
 	}
+	params["limit"] = reqLimit
 
 	reqOffset, err := strconv.Atoi(ctx.Request.URL.Query().Get("offset"))
 	if err != nil {
 		reqOffset = 0
 	}
+	params["offset"] = reqOffset
 
 	reqRace := ctx.Request.URL.Query().Get("race")
-	if !model.IsRaceExists(reqRace) {
-		reqRace = ""
+	if model.IsRaceExists(reqRace) {
+		params["race"] = model.Race(reqRace)
 	}
 
 	reqSex := ctx.Request.URL.Query().Get("sex")
-	if !model.IsSexExists(reqSex) {
-		reqSex = ""
+	if model.IsSexExists(reqSex) {
+		params["sex"] = model.Race(reqSex)
 	}
 	reqAgeInMonth := ctx.Request.URL.Query().Get("ageInMonth")
-	if !IsAgeTypeExists(reqAgeInMonth) {
-		reqAgeInMonth = ""
+	if IsAgeTypeExists(reqAgeInMonth) {
+		params["ageInMonth"] = AgeType(reqAgeInMonth)
 	}
 
-	reqHasMatched := ctx.Request.URL.Query().Has("hasMatched")
+	reqHasMatched := ctx.Request.URL.Query().Get("hasMatched")
+	hasMatched, err := strconv.ParseBool(reqHasMatched)
+	if err == nil {
+		params["hasMatched"] = hasMatched
+	}
 
-	reqOwned := ctx.Request.URL.Query().Has("owned")
+	reqOwned := ctx.Request.URL.Query().Get("owned")
+	owned, err := strconv.ParseBool(reqOwned)
+	if err == nil {
+		params["owned"] = owned
+	}
+
 	reqSearch := ctx.Request.URL.Query().Get("search")
-
-	reqParams := CatReqParams{
-		ID:         int64(reqCatId),
-		Limit:      reqLimit,
-		Offset:     reqOffset,
-		Race:       model.Race(reqRace),
-		Sex:        model.Sex(reqSex),
-		AgeType:    AgeType(reqAgeInMonth),
-		HasMatched: reqHasMatched,
-		Owned:      reqOwned,
-		Search:     reqSearch,
+	if "" != reqSearch {
+		params["search"] = "%" + reqSearch + "%"
 	}
-	return reqParams
+
+	return params
 }

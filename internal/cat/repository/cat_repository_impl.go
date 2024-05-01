@@ -2,8 +2,10 @@ package repository
 
 import (
 	"github.com/jmoiron/sqlx"
+	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/pkg/errs"
+	"strconv"
 	"time"
 )
 
@@ -59,4 +61,76 @@ func (r *CatRepositoryImpl) DeleteCat(catId int64, userId int64) error {
 	query := "DELETE FROM cats WHERE id = $1 and user_id = $2"
 	_, err = r.db.Exec(query, catId, userId)
 	return err
+}
+
+func (r *CatRepositoryImpl) SearchCat(params map[string]interface{}) ([]model.Cat, error) {
+	query := "SELECT * FROM cats WHERE 1=1"
+
+	var args []interface{}
+	for key, value := range params {
+		isAddArgs := false
+		num := 1
+		switch key {
+		case "id":
+			query += " AND id = $" + strconv.Itoa(num)
+			isAddArgs = true
+			num++
+		case "userID":
+			query += " AND user_id = $" + strconv.Itoa(num)
+			isAddArgs = true
+			num++
+		case "search":
+			query += " AND name LIKE $" + strconv.Itoa(num)
+			isAddArgs = true
+			num++
+		case "race":
+			query += " AND race = $" + strconv.Itoa(num)
+			isAddArgs = true
+			num++
+		case "sex":
+			query += " AND sex = $" + strconv.Itoa(num)
+			isAddArgs = true
+			num++
+		case "ageInMonth":
+			if value == dto.MoreThan4 {
+				query += " AND age_in_month > 4"
+			} else if value == dto.EqualWith4 {
+				query += " AND age_in_month = 4"
+			} else {
+				query += " AND age_in_month < 4"
+			}
+		case "description":
+			query += " AND description = $" + strconv.Itoa(num)
+			isAddArgs = true
+			num++
+		case "hasMatched":
+			query += " AND has_matched = $" + strconv.Itoa(num)
+			isAddArgs = true
+			num++
+		}
+		if isAddArgs {
+			args = append(args, value)
+		}
+	}
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var cats []model.Cat
+	for rows.Next() {
+		var cat model.Cat
+		err := rows.Scan(&cat.ID, &cat.UserID, &cat.Name, &cat.Race, &cat.Sex, &cat.AgeInMonth, &cat.Description, &cat.HasMatched, &cat.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		cats = append(cats, cat)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return cats, nil
 }
