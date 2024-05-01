@@ -3,5 +3,7 @@ package repository
 import "ps-cats-social/internal/cat/model"
 
 type CatRepository interface {
-	SaveCat(cat *model.Cat) (model.Cat, error)
+	GetCatByIDAndUserID(catId int64, userId int64) (model.Cat, error)
+	CreateCat(cat *model.Cat) (model.Cat, error)
+	DeleteCat(catId int64, userId int64) error
 }
