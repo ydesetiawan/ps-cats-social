@@ -67,9 +67,11 @@ func (r *CatRepositoryImpl) SearchCat(params map[string]interface{}) ([]model.Ca
 	query := "SELECT * FROM cats WHERE 1=1"
 
 	var args []interface{}
+	num := 1
+	limit := 5
+	offset := 0
 	for key, value := range params {
 		isAddArgs := false
-		num := 1
 		switch key {
 		case "id":
 			query += " AND id = $" + strconv.Itoa(num)
@@ -107,11 +109,20 @@ func (r *CatRepositoryImpl) SearchCat(params map[string]interface{}) ([]model.Ca
 			query += " AND has_matched = $" + strconv.Itoa(num)
 			isAddArgs = true
 			num++
+
+		case "limit":
+			limit = value.(int)
+		case "offset":
+			offset = value.(int)
 		}
 		if isAddArgs {
 			args = append(args, value)
 		}
 	}
+
+	query += " ORDER BY created_at DESC LIMIT $" + strconv.Itoa(num) + " OFFSET $" + strconv.Itoa(num+1)
+	args = append(args, limit)
+	args = append(args, offset)
 
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
