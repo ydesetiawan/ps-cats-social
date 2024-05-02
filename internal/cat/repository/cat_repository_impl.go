@@ -4,6 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/model"
+	"ps-cats-social/pkg/errs"
 	"ps-cats-social/pkg/helper"
 	"strconv"
 	"time"
@@ -25,7 +26,7 @@ func (r *CatRepositoryImpl) CreateCat(cat *model.Cat) (model.Cat, error) {
 		query, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.AgeInMonth, helper.ConvertSliceToPostgresArray(cat.ImageUrls), createdAt, cat.Description).Scan(&lastInsertId)
 
 	if err != nil {
-		return model.Cat{}, err
+		return model.Cat{}, errs.NewErrInternalServerErrors("execute query error [CreateCat]: ", err.Error())
 	}
 
 	return model.Cat{
@@ -38,6 +39,9 @@ func (r *CatRepositoryImpl) GetCatByIDAndUserID(catId int64, userId int64) (mode
 	var cat model.Cat
 	query := "select * from cats where id = $1 and user_id = $2"
 	err := r.db.Get(&cat, query, catId, userId)
+	if err != nil {
+		return model.Cat{}, errs.NewErrInternalServerErrors("execute query error [GetCatByID]: ", err.Error())
+	}
 	return cat, err
 }
 
@@ -45,6 +49,9 @@ func (r *CatRepositoryImpl) GetCatByID(catId int64) (model.Cat, error) {
 	var cat model.Cat
 	query := "select * from cats where id = $1"
 	err := r.db.Get(&cat, query, catId)
+	if err != nil {
+		return model.Cat{}, errs.NewErrInternalServerErrors("execute query error [GetCatByID]: ", err.Error())
+	}
 	return cat, err
 }
 
@@ -54,7 +61,7 @@ func (r *CatRepositoryImpl) UpdateCat(cat *model.Cat) (model.Cat, error) {
 		query, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.AgeInMonth, helper.ConvertSliceToPostgresArray(cat.ImageUrls), cat.Description, cat.ID)
 
 	if err != nil {
-		return model.Cat{}, err
+		return model.Cat{}, errs.NewErrInternalServerErrors("execute query error [UpdateCat]: ", err.Error())
 	}
 
 	return *cat, nil
@@ -63,6 +70,9 @@ func (r *CatRepositoryImpl) UpdateCat(cat *model.Cat) (model.Cat, error) {
 func (r *CatRepositoryImpl) DeleteCat(catId int64, userId int64) error {
 	query := "DELETE FROM cats WHERE id = $1 and user_id = $2"
 	_, err := r.db.Exec(query, catId, userId)
+	if err != nil {
+		return errs.NewErrInternalServerErrors("execute query error [DeleteCat]: ", err.Error())
+	}
 	return err
 }
 
@@ -138,15 +148,26 @@ func (r *CatRepositoryImpl) SearchCat(params map[string]interface{}) ([]model.Ca
 		var cat model.Cat
 		err := rows.Scan(&cat.ID, &cat.UserID, &cat.Name, &cat.Race, &cat.Sex, &cat.AgeInMonth, &cat.ImageUrlsString, &cat.Description, &cat.HasMatched, &cat.CreatedAt)
 		if err != nil {
-			return nil, err
+			return nil, errs.NewErrInternalServerErrors("execute query error [GetCat]: ", err.Error())
 		}
 		cat.ImageUrls = helper.ParsePostgresArray(cat.ImageUrlsString)
 		cat.CreatedAtISOFormat = cat.CreatedAt.Format(time.RFC3339)
 		cats = append(cats, cat)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, errs.NewErrInternalServerErrors("execute query error [GetCat]: ", err.Error())
 	}
 
 	return cats, nil
+}
+
+func (r *CatRepositoryImpl) UpdateHasMatchedCat(catId int64, status bool) error {
+	query := "UPDATE cats SET has_matched = $1 WHERE id = $2"
+	_, err := r.db.Queryx(query, status, catId)
+
+	if err != nil {
+		return errs.NewErrInternalServerErrors("execute query error [UpdateHasMatchedCat]: ", err.Error())
+	}
+
+	return nil
 }

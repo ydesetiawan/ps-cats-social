@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"ps-cats-social/internal/cat/dto"
+	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/internal/cat/service"
 	"ps-cats-social/internal/shared"
 	"ps-cats-social/pkg/base/app"
@@ -55,7 +56,20 @@ func (h *CatMatchHTTPHandler) GetMatches(ctx *app.Context) *response.WebResponse
 	}
 }
 
-func (h *CatMatchHTTPHandler) ApproveReqest(ctx *app.Context) *response.WebResponse {
+func (h *CatMatchHTTPHandler) ApproveRequest(ctx *app.Context) *response.WebResponse {
+	var request dto.MatchApprovalReq
+	jsonString, _ := json.Marshal(ctx.GetJsonBody())
+	err := json.Unmarshal(jsonString, &request)
+	helper.Panic400IfError(err)
+
+	err = dto.ValidateMatchApprovalReq(request)
+	helper.Panic400IfError(err)
+
+	userId, err := shared.ExtractUserId(ctx)
+	helper.PanicIfError(err, "error ExtractUserId")
+
+	err = h.catchMatchService.MatchApproval(request.MatchId, userId, model.Approved)
+	helper.PanicIfError(err, "error MatchApproval")
 
 	return &response.WebResponse{
 		Status:  200,
@@ -64,6 +78,19 @@ func (h *CatMatchHTTPHandler) ApproveReqest(ctx *app.Context) *response.WebRespo
 }
 
 func (h *CatMatchHTTPHandler) RejectRequest(ctx *app.Context) *response.WebResponse {
+	var request dto.MatchApprovalReq
+	jsonString, _ := json.Marshal(ctx.GetJsonBody())
+	err := json.Unmarshal(jsonString, &request)
+	helper.Panic400IfError(err)
+
+	err = dto.ValidateMatchApprovalReq(request)
+	helper.Panic400IfError(err)
+
+	userId, err := shared.ExtractUserId(ctx)
+	helper.PanicIfError(err, "error ExtractUserId")
+
+	err = h.catchMatchService.MatchApproval(request.MatchId, userId, model.Rejected)
+	helper.PanicIfError(err, "error MatchApproval")
 
 	return &response.WebResponse{
 		Status:  200,

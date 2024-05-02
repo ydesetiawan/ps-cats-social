@@ -3,7 +3,7 @@ package service
 import (
 	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/model"
-	catMatch "ps-cats-social/internal/cat/repository"
+	catMatchRepo "ps-cats-social/internal/cat/repository"
 	catRepo "ps-cats-social/internal/cat/repository"
 	userRepo "ps-cats-social/internal/user/repository"
 	"ps-cats-social/pkg/errs"
@@ -13,13 +13,13 @@ import (
 type CatMatchService struct {
 	catRepository      catRepo.CatRepository
 	userRepository     userRepo.UserRepository
-	catMatchRepository catMatch.CatMatchRepository
+	catMatchRepository catMatchRepo.CatMatchRepository
 }
 
 func NewCatMatchService(
 	catRepository catRepo.CatRepository,
 	userRepository userRepo.UserRepository,
-	catMatchRepository catMatch.CatMatchRepository) *CatMatchService {
+	catMatchRepository catMatchRepo.CatMatchRepository) *CatMatchService {
 	return &CatMatchService{
 		catRepository:      catRepository,
 		userRepository:     userRepository,
@@ -75,4 +75,37 @@ func (s *CatMatchService) MatchCat(request dto.CatMatchReq, userId int64) error 
 func (s *CatMatchService) GetMatches(userId int64) ([]dto.CatMatchResp, error) {
 
 	return s.catMatchRepository.GetMatches(userId)
+}
+
+func (s *CatMatchService) MatchApproval(matchId int64, activeUserId int64, matchStatus model.MatchStatus) error {
+
+	catMatch, err := s.catMatchRepository.GetMatchByID(matchId)
+	if err != nil || helper.IsStructEmpty(catMatch) {
+		return errs.NewErrDataNotFound("matchCatId is not found", matchId, errs.ErrorData{})
+	}
+
+	if catMatch.ReceiverID == activeUserId || !(model.Pending == catMatch.Status) {
+		return errs.NewErrBadRequest("matchId is no longer valid")
+	}
+
+	err = s.catMatchRepository.MatchApproval(matchId, matchStatus)
+	if err == nil && model.Approved == matchStatus {
+		iMatchIds, _ := s.catMatchRepository.GetMatchIDsByCatMatchIDOrCatUserID(catMatch.UserCatID)
+		rMatchIds, _ := s.catMatchRepository.GetMatchIDsByCatMatchIDOrCatUserID(catMatch.MatchCatID)
+		matchIds := helper.CombineAndUniqueWithExclusion(iMatchIds, rMatchIds, matchId)
+		err = s.catRepository.UpdateHasMatchedCat(catMatch.UserCatID, true)
+		if err != nil {
+			return errs.NewErrInternalServerErrors("error when [MatchApproval]", err.Error())
+		}
+		err = s.catRepository.UpdateHasMatchedCat(catMatch.MatchCatID, true)
+		if err != nil {
+			return errs.NewErrInternalServerErrors("error when [MatchApproval]", err.Error())
+		}
+		err = s.catMatchRepository.DeleteByIds(matchIds)
+		if err != nil {
+			return errs.NewErrInternalServerErrors("error when [MatchApproval]", err.Error())
+		}
+	}
+
+	return err
 }

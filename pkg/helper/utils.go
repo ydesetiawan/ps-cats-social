@@ -2,6 +2,7 @@ package helper
 
 import (
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -56,4 +57,49 @@ func IsStructEmpty(s interface{}) bool {
 		}
 	}
 	return true
+}
+
+func CombineAndUniqueWithExclusion(a, b []int64, exclude ...int64) []int64 {
+	// Create a map to store unique elements
+	unique := make(map[int64]struct{})
+
+	// Add elements of slice a to the map
+	for _, val := range a {
+		if !contains(exclude, val) {
+			unique[val] = struct{}{}
+		}
+	}
+
+	// Add elements of slice b to the map
+	for _, val := range b {
+		if !contains(exclude, val) {
+			unique[val] = struct{}{}
+		}
+	}
+
+	// Extract keys from the map to form the result slice
+	result := make([]int64, 0, len(unique))
+	for key := range unique {
+		result = append(result, key)
+	}
+
+	return result
+}
+
+// Helper function to check if a slice contains a specific value
+func contains(slice []int64, val int64) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}
+
+func PlaceholdersString(n int) string {
+	placeholders := make([]string, n)
+	for i := range placeholders {
+		placeholders[i] = "$" + strconv.Itoa(i+1) + ""
+	}
+	return strings.Join(placeholders, ", ")
 }
