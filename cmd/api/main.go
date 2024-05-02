@@ -4,11 +4,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/cobra"
-	"go.opentelemetry.io/otel"
 	"golang.org/x/exp/slog"
-	ddotel "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/opentelemetry"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/profiler"
 	stdlog "log"
 	"os"
 	"ps-cats-social/cmd/api/server"
@@ -23,7 +19,6 @@ import (
 	"ps-cats-social/pkg/logger"
 	psqlqgen "ps-cats-social/pkg/psqlqgen"
 	"strings"
-	"time"
 )
 
 var httpCmd = &cobra.Command{
@@ -64,10 +59,8 @@ func logLevel() slog.Level {
 }
 
 func initLogger() {
-	// STEP 1: Prepare Logger to use our standard logger.
 	{
-		// Prepare logger and set it as global logger within the application.
-		// Use block statement to ensure we don't use `logger` variable directly.
+
 		log, err := logger.SlogOption{
 			Resource: map[string]string{
 				"service.name":        shared.ServiceName,
@@ -95,37 +88,6 @@ func initLogger() {
 func runHttpCommand(cmd *cobra.Command, args []string) error {
 	initLogger()
 	initInfra()
-	//server.InitDBMigrate()
-	// init datadog tracer
-	rules := []tracer.SamplingRule{tracer.RateRule(1)}
-	tracerOpt := []tracer.StartOption{
-		tracer.WithRuntimeMetrics(),
-		tracer.WithTraceEnabled(true),
-		tracer.WithService(shared.ServiceName),
-		tracer.WithEnv("shared.DatadogEnv"),
-		tracer.WithSamplingRules(rules),
-	}
-	tracerProvider := ddotel.NewTracerProvider(tracerOpt...)
-	defer func() {
-		if tracerProvider == nil {
-			return
-		}
-		if _err := tracerProvider.Shutdown(); _err != nil {
-			slog.Error("OpenTelemetry provider shutdown error", slog.Any("error", _err))
-		}
-	}()
-	otel.SetTracerProvider(tracerProvider)
-	// init datadog profiler
-	if os.Getenv("DD_USE_PROFILER") == "true" {
-		if err := profiler.Start(
-			profiler.WithService(shared.ServiceName),
-			profiler.WithEnv(shared.DatadogEnv),
-			profiler.WithPeriod(time.Second),
-		); err != nil {
-			slog.Warn(fmt.Sprintf("error start profiler: %s", err.Error()))
-		}
-		defer profiler.Stop()
-	}
 
 	httpServer := server.NewServer(
 		baseHandler, userHandler, catHandler, catMatchHandler,
