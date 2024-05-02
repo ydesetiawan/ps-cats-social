@@ -1,22 +1,39 @@
 package handler
 
 import (
+	"encoding/json"
+	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/service"
+	"ps-cats-social/internal/shared"
 	"ps-cats-social/pkg/base/app"
+	"ps-cats-social/pkg/helper"
 	"ps-cats-social/pkg/httphelper/response"
 )
 
 type CatMatchHTTPHandler struct {
-	catchMatch *service.CatMatchService
+	catchMatchService *service.CatMatchService
 }
 
-func NewCatMatchHTTPHandler(catchMatch *service.CatMatchService) *CatMatchHTTPHandler {
+func NewCatMatchHTTPHandler(catchMatchService *service.CatMatchService) *CatMatchHTTPHandler {
 	return &CatMatchHTTPHandler{
-		catchMatch: catchMatch,
+		catchMatchService: catchMatchService,
 	}
 }
 
 func (h *CatMatchHTTPHandler) MatchCat(ctx *app.Context) *response.WebResponse {
+	var request dto.CatMatchReq
+	jsonString, _ := json.Marshal(ctx.GetJsonBody())
+	err := json.Unmarshal(jsonString, &request)
+	helper.Panic400IfError(err)
+
+	err = dto.ValidateCatMatchReq(request)
+	helper.Panic400IfError(err)
+
+	userId, err := shared.ExtractUserId(ctx)
+	helper.PanicIfError(err, "error ExtractUserId")
+
+	err = h.catchMatchService.MatchCat(request, userId)
+	helper.PanicIfError(err, "error MatchCat")
 
 	return &response.WebResponse{
 		Status:  201,

@@ -39,6 +39,7 @@ func (h *CatHttpHandler) GetCat(ctx *app.Context) *response.WebResponse {
 		message = "DATA NOT FOUND"
 		cats = []model.Cat{}
 	}
+
 	return &response.WebResponse{
 		Status:  200,
 		Message: message,
@@ -50,16 +51,11 @@ func (h *CatHttpHandler) CreateCat(ctx *app.Context) *response.WebResponse {
 	var request dto.CatReq
 	jsonString, _ := json.Marshal(ctx.GetJsonBody())
 	err := json.Unmarshal(jsonString, &request)
-	helper.PanicIfError(err, "request body is failed to parsed")
+	helper.Panic400IfError(err)
 
 	err = dto.ValidateCatReq(request)
-	if err != nil {
-		return &response.WebResponse{
-			Status:  400,
-			Message: "Bad Request : " + err.Error(),
-			Data:    dto.SavedCatResp{},
-		}
-	}
+	helper.Panic400IfError(err)
+
 	userId, err := shared.ExtractUserId(ctx)
 	helper.PanicIfError(err, "error ExtractUserId")
 
@@ -87,17 +83,14 @@ func (h *CatHttpHandler) UpdateCat(ctx *app.Context) *response.WebResponse {
 	var request dto.CatReq
 	jsonString, _ := json.Marshal(ctx.GetJsonBody())
 	err := json.Unmarshal(jsonString, &request)
-	helper.PanicIfError(err, "request body is failed to parsed")
+	helper.Panic400IfError(err)
 
 	err = dto.ValidateCatReq(request)
-	if err != nil {
-		return &response.WebResponse{
-			Status:  400,
-			Message: "Bad Request : " + err.Error(),
-		}
-	}
+	helper.Panic400IfError(err)
+
 	userId, err := shared.ExtractUserId(ctx)
 	helper.PanicIfError(err, "error when ExtractUserId")
+
 	res, err := h.catService.UpdateCatCat(request, userId, int64(catId))
 	helper.PanicIfError(err, "error when UpdateCatCat")
 
