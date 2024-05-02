@@ -10,26 +10,19 @@ Project Sprint for Cats Social
 
 ### How do I get set up? ###
 
-* Prerequisites
+#### Prerequisites
 - go version 1.21 or later
-- Mysql 5.7 or later
-- Docker 20 or later
+- PostGres v16
 
-* Summary of set up
-  Setup web server (non-docker)
-- cd cmd/production-api
+#### Summary of set up and run
+- cd cmd/api
 - go run main.go http
 
-* Golang Migrate
+#### Golang Migrate
 - https://www.freecodecamp.org/news/database-migration-golang-migrate/
-```
-- migrate create -ext sql -dir db/migrations/ -seq create_user
-```
 
-```
-migrate -path db/migrations/ -database "postgresql://postgres:@localhost:5432/cats_social?sslmode=disable" -verbose up
-```
+### Run Migration using MakeFile
 
-```
-migrate -path db/migrations/ -database "postgresql://postgres:@localhost:5432/cats_social?sslmode=disable" -verbose down
-```
+- make migration_up
+- make migration_down
+- make migration_fix
