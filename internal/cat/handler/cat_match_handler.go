@@ -51,6 +51,10 @@ func (h *CatMatchHTTPHandler) GetMatches(ctx *app.Context) *response.WebResponse
 
 	res, err := h.catchMatchService.GetMatches(userId)
 
+	if res == nil {
+		res = []dto.CatMatchResp{}
+	}
+
 	return &response.WebResponse{
 		Status:  200,
 		Message: "successfully get match requests",
