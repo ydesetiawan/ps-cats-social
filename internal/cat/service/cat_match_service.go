@@ -55,13 +55,24 @@ func (s *CatMatchService) MatchCat(request dto.CatMatchReq, userId int64) error 
 		return errs.NewErrBadRequest("the cat’s gender is same")
 	}
 
-	//TODO either `matchCatId` / `userCatId` already matched
+	if matchCat.HasMatched {
+		return errs.NewErrBadRequest("either matchCatId / userCatId already matched")
+	}
+
+	if userCat.HasMatched {
+		return errs.NewErrBadRequest("either matchCatId / userCatId already matched")
+	}
 
 	if matchCat.UserID == userId {
 		return errs.NewErrBadRequest("matchCatId / userCatId is from the same owner")
 	}
 
-	err = s.catMatchRepository.MatchCat(dto.NewCatMatch(request, model.Pending, userId))
+	err = s.catMatchRepository.MatchCat(dto.NewCatMatch(request, model.Pending, userId, matchCat.UserID))
 
 	return err
+}
+
+func (s *CatMatchService) GetMatches(userId int64) ([]dto.CatMatchResp, error) {
+
+	return s.catMatchRepository.GetMatches(userId)
 }

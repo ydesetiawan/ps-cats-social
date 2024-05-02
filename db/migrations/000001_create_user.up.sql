@@ -2,7 +2,8 @@ CREATE TABLE users (
     id bigserial PRIMARY KEY,
     name VARCHAR(50),
     email VARCHAR(255) UNIQUE,
-    password VARCHAR(100)
+    password VARCHAR(100),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 

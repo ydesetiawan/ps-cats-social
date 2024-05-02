@@ -43,9 +43,15 @@ func (h *CatMatchHTTPHandler) MatchCat(ctx *app.Context) *response.WebResponse {
 
 func (h *CatMatchHTTPHandler) GetMatches(ctx *app.Context) *response.WebResponse {
 
+	userId, err := shared.ExtractUserId(ctx)
+	helper.PanicIfError(err, "error ExtractUserId")
+
+	res, err := h.catchMatchService.GetMatches(userId)
+
 	return &response.WebResponse{
 		Status:  200,
 		Message: "successfully get match requests",
+		Data:    res,
 	}
 }
 
