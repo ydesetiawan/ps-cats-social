@@ -4,6 +4,7 @@ import (
 	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/internal/cat/repository"
+	"ps-cats-social/pkg/errs"
 )
 
 type CatService struct {
@@ -37,6 +38,10 @@ func (s *CatService) CreateCat(req dto.CatReq, userId int64) (*dto.SavedCatResp,
 }
 
 func (s *CatService) UpdateCatCat(req dto.CatReq, userId int64, catId int64) (*dto.SavedCatResp, error) {
+	_, err := s.catRepository.GetCatByIDAndUserID(catId, userId)
+	if err != nil {
+		return &dto.SavedCatResp{}, errs.NewErrDataNotFound("cat id is not found", catId, errs.ErrorData{})
+	}
 	cat, err := s.catRepository.UpdateCat(dto.NewCatWithID(req, userId, catId))
 	if err != nil {
 		return &dto.SavedCatResp{}, err
@@ -49,8 +54,13 @@ func (s *CatService) UpdateCatCat(req dto.CatReq, userId int64, catId int64) (*d
 }
 
 func (s *CatService) DeleteCat(catId int64, userId int64) error {
-	err := s.catRepository.DeleteCat(catId, userId)
+	_, err := s.catRepository.GetCatByIDAndUserID(catId, userId)
 	if err != nil {
+		return errs.NewErrDataNotFound("cat id is not found", catId, errs.ErrorData{})
+	}
+	err = s.catRepository.DeleteCat(catId, userId)
+	if err != nil {
+
 		return err
 	}
 

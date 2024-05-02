@@ -4,7 +4,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/model"
-	"ps-cats-social/pkg/errs"
 	"ps-cats-social/pkg/helper"
 	"strconv"
 	"time"
@@ -55,12 +54,8 @@ func (r *CatRepositoryImpl) UpdateCat(cat *model.Cat) (model.Cat, error) {
 }
 
 func (r *CatRepositoryImpl) DeleteCat(catId int64, userId int64) error {
-	_, err := r.GetCatByIDAndUserID(catId, userId)
-	if err != nil {
-		return errs.NewErrDataNotFound("id is not found", catId, errs.ErrorData{})
-	}
 	query := "DELETE FROM cats WHERE id = $1 and user_id = $2"
-	_, err = r.db.Exec(query, catId, userId)
+	_, err := r.db.Exec(query, catId, userId)
 	return err
 }
 
