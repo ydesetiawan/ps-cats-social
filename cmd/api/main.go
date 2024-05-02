@@ -2,9 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/spf13/cobra"
-	"golang.org/x/exp/slog"
 	stdlog "log"
 	"os"
 	"ps-cats-social/cmd/api/server"
@@ -19,10 +16,16 @@ import (
 	"ps-cats-social/pkg/logger"
 	psqlqgen "ps-cats-social/pkg/psqlqgen"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/spf13/cobra"
+	"golang.org/x/exp/slog"
 )
 
+var port int
+
 var httpCmd = &cobra.Command{
-	Use:   "http",
+	Use:   "http [OPTIONS]",
 	Short: "Run HTTP API",
 	Long:  "Run HTTP API for SCM",
 	RunE:  runHttpCommand,
@@ -35,6 +38,10 @@ var (
 	catHandler      *cathandler.CatHttpHandler
 	catMatchHandler *cathandler.CatMatchHTTPHandler
 )
+
+func init() {
+	httpCmd.Flags().IntVarP(&port, "port", "p", 8080, "Port to run the HTTP server")
+}
 
 func main() {
 	if err := httpCmd.Execute(); err != nil {
@@ -90,7 +97,7 @@ func runHttpCommand(cmd *cobra.Command, args []string) error {
 	initInfra()
 
 	httpServer := server.NewServer(
-		baseHandler, userHandler, catHandler, catMatchHandler,
+		baseHandler, userHandler, catHandler, catMatchHandler, port,
 	)
 	return httpServer.Run()
 }
