@@ -34,10 +34,11 @@ var httpCmd = &cobra.Command{
 }
 
 var (
-	params      map[string]string
-	baseHandler *bhandler.BaseHTTPHandler
-	userHandler *userhandler.UserHTTPHandler
-	catHandler  *cathandler.CatHttpHandler
+	params          map[string]string
+	baseHandler     *bhandler.BaseHTTPHandler
+	userHandler     *userhandler.UserHTTPHandler
+	catHandler      *cathandler.CatHttpHandler
+	catMatchHandler *cathandler.CatMatchHTTPHandler
 )
 
 func main() {
@@ -89,7 +90,6 @@ func initLogger() {
 		// Set logger as global logger.
 		slog.SetDefault(log)
 	}
-
 }
 
 func runHttpCommand(cmd *cobra.Command, args []string) error {
@@ -128,7 +128,7 @@ func runHttpCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	httpServer := server.NewServer(
-		baseHandler, userHandler, catHandler,
+		baseHandler, userHandler, catHandler, catMatchHandler,
 	)
 	return httpServer.Run()
 }
@@ -160,4 +160,7 @@ func initInfra() {
 	catService := catservice.NewCatService(catRepository)
 	catHandler = cathandler.NewCatHttpHandler(catService)
 
+	catMatchRepository := catrepository.CatMatchRepository(dbConnection)
+	catMatchService := catservice.NewCatMatchService(catRepository, userRepository, catMatchRepository)
+	catMatchHandler = cathandler.NewCatMatchHTTPHandler(catMatchService)
 }

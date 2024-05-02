@@ -15,24 +15,27 @@ import (
 )
 
 type Server struct {
-	baseHandler *bhandler.BaseHTTPHandler
-	userHandler *userhandler.UserHTTPHandler
-	catHandler  *catbandler.CatHttpHandler
-	router      *muxtrace.Router
-	port        int
+	baseHandler     *bhandler.BaseHTTPHandler
+	userHandler     *userhandler.UserHTTPHandler
+	catHandler      *catbandler.CatHttpHandler
+	catMatchHandler *catbandler.CatMatchHTTPHandler
+	router          *muxtrace.Router
+	port            int
 }
 
 func NewServer(
 	bHandler *bhandler.BaseHTTPHandler,
 	userHandler *userhandler.UserHTTPHandler,
 	catHandler *catbandler.CatHttpHandler,
+	catMatchHandler *catbandler.CatMatchHTTPHandler,
 ) Server {
 	return Server{
-		baseHandler: bHandler,
-		userHandler: userHandler,
-		catHandler:  catHandler,
-		router:      muxtrace.NewRouter(muxtrace.WithServiceName(shared.ServiceName)),
-		port:        8080,
+		baseHandler:     bHandler,
+		userHandler:     userHandler,
+		catHandler:      catHandler,
+		catMatchHandler: catMatchHandler,
+		router:          muxtrace.NewRouter(muxtrace.WithServiceName(shared.ServiceName)),
+		port:            8080,
 	}
 }
 

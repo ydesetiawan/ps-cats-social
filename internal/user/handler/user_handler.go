@@ -20,7 +20,7 @@ func NewUserHTTPHandler(h *handler.BaseHTTPHandler, userService *service.UserSer
 	}
 }
 
-func (h *UserHTTPHandler) RegisterUserHandler(ctx *app.Context) *response.WebResponse {
+func (h *UserHTTPHandler) Register(ctx *app.Context) *response.WebResponse {
 	var request dto.RegisterReq
 	jsonString, _ := json.Marshal(ctx.GetJsonBody())
 	err := json.Unmarshal(jsonString, &request)

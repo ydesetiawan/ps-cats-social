@@ -1,10 +1,12 @@
+CREATE TYPE status_match_enum AS ENUM ('pending', 'approved', 'reject');
+
 CREATE TABLE cat_matches (
     id SERIAL PRIMARY KEY,
     user_id SERIAL NOT NULL,
     match_cat_id SERIAL NOT NULL,
     user_cat_id SERIAL NOT NULL,
     message VARCHAR(120) NOT NULL,
-    is_approved BOOLEAN NOT NULL default false,
+    status status_match_enum NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

@@ -101,7 +101,6 @@ func GenerateCatReqParams(ctx *app.Context) (map[string]interface{}, error) {
 		} else {
 			return nil, errors.New("DATA NOT FOUND")
 		}
-
 	}
 
 	reqSex := ctx.Request.URL.Query().Get("sex")
