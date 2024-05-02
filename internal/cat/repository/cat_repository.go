@@ -9,4 +9,5 @@ type CatRepository interface {
 	UpdateCat(cat *model.Cat) (model.Cat, error)
 	DeleteCat(catId int64, userId int64) error
 	SearchCat(params map[string]interface{}) ([]model.Cat, error)
+	UpdateHasMatchedCat(catId int64, status bool) error
 }

@@ -43,3 +43,12 @@ type UserDetail struct {
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"createdAt"`
 }
+
+type MatchApprovalReq struct {
+	MatchId int64 `json:"matchId" validate:"required,number,min=1"`
+}
+
+func ValidateMatchApprovalReq(req MatchApprovalReq) error {
+	validate := validator.New()
+	return validate.Struct(req)
+}

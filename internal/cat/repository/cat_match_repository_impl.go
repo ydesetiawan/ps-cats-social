@@ -19,15 +19,38 @@ func NewCatMatchRepositoryImpl(db *sqlx.DB) *CatMatchRepositoryImpl {
 	}
 }
 
-func (r *CatMatchRepositoryImpl) IsAlreadyMatched(catId int64) (bool, error) {
-
-	var approved bool
-	query := `SELECT EXISTS (SELECT 1 FROM cat_matches WHERE (match_cat_id = $1 OR user_cat_id = $1) AND status = $2)`
-	err := r.db.QueryRow(query, catId, model.Approved).Scan(&approved)
+func (r *CatMatchRepositoryImpl) GetMatchIDsByCatMatchIDOrCatUserID(catId int64) ([]int64, error) {
+	var ids []int64
+	query := `SELECT id FROM cat_matches WHERE (issuer_id = $1 OR receiver_id = $1) AND status = $2`
+	rows, err := r.db.Query(query, catId, model.Pending)
 	if err != nil {
-		return false, errs.NewErrInternalServerError("Error when save data cat_matches", err.Error(), errs.ErrorData{})
+		return nil, err
 	}
-	return approved, nil
+	defer rows.Close()
+
+	for rows.Next() {
+		var id int64
+		err := rows.Scan(&id)
+		if err != nil {
+			return nil, errs.NewErrInternalServerErrors("execute query error [GetMatchIDsByCatMatchIDOrCatUserID]: ", err.Error())
+		}
+		ids = append(ids, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, errs.NewErrInternalServerErrors("execute query error [GetMatchIDsByCatMatchIDOrCatUserID]: ", err.Error())
+	}
+
+	return ids, nil
+}
+
+func (r *CatMatchRepositoryImpl) GetMatchByID(matchId int64) (model.CatMatch, error) {
+	var cat model.CatMatch
+	query := "select * from cat_matches where id = $1"
+	err := r.db.Get(&cat, query, matchId)
+	if err != nil {
+		return model.CatMatch{}, errs.NewErrInternalServerErrors("execute query error [GetMatchByID]: ", err.Error())
+	}
+	return cat, err
 }
 
 func (r *CatMatchRepositoryImpl) MatchCat(catMatch *model.CatMatch) error {
@@ -35,8 +58,19 @@ func (r *CatMatchRepositoryImpl) MatchCat(catMatch *model.CatMatch) error {
 	_, err := r.db.Queryx(
 		query, catMatch.IssuerID, catMatch.ReceiverID, catMatch.MatchCatID, catMatch.UserCatID, catMatch.Message, catMatch.Status)
 	if err != nil {
-		return errs.NewErrInternalServerError("Error when save data cat_matches", err.Error(), errs.ErrorData{})
+		return errs.NewErrInternalServerErrors("execute query error [MatchCat]: ", err.Error())
 	}
+	return nil
+}
+
+func (r *CatMatchRepositoryImpl) MatchApproval(catMatchId int64, status model.MatchStatus) error {
+	query := "UPDATE cat_matches SET status = $1 WHERE id = $2"
+	_, err := r.db.Queryx(query, status, catMatchId)
+
+	if err != nil {
+		return errs.NewErrInternalServerErrors("execute query error [MatchApproval]: ", err.Error())
+	}
+
 	return nil
 }
 
@@ -124,7 +158,7 @@ func (r *CatMatchRepositoryImpl) GetMatches(userId int64) ([]dto.CatMatchResp, e
 			&catMatch.CreatedAt,
 		)
 		if err != nil {
-			return nil, errs.NewErrInternalServerError("Error when GetMatches", err.Error(), errs.ErrorData{})
+			return []dto.CatMatchResp{}, errs.NewErrInternalServerErrors("execute query error [GetMatches]: ", err.Error())
 		}
 
 		catMatch.IssuedBy = issuer
@@ -143,4 +177,29 @@ func (r *CatMatchRepositoryImpl) GetMatches(userId int64) ([]dto.CatMatchResp, e
 	}
 
 	return catMatches, nil
+}
+
+func (r *CatMatchRepositoryImpl) DeleteByIds(ids []int64) error {
+	placeholders := make([]interface{}, len(ids))
+	for i, id := range ids {
+		placeholders[i] = id
+	}
+
+	// Construct the SQL query
+	query := "DELETE FROM cat_matches WHERE id IN (" + helper.PlaceholdersString(len(ids)) + ")"
+
+	// Create a prepared statement
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return errs.NewErrInternalServerErrors("execute query error [DeleteByIds]: ", err.Error())
+	}
+	defer stmt.Close()
+
+	// Execute the statement with the IDs as parameters
+	_, err = stmt.Exec(placeholders...)
+	if err != nil {
+		return errs.NewErrInternalServerErrors("execute query error [DeleteByIds]: ", err.Error())
+	}
+
+	return nil
 }

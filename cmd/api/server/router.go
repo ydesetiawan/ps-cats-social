@@ -18,7 +18,7 @@ func (s *Server) setupRouter() {
 
 	v1.HandleFunc("/cat/match", s.baseHandler.RunActionAuth(s.catMatchHandler.MatchCat)).Methods("POST")
 	v1.HandleFunc("/cat/match", s.baseHandler.RunActionAuth(s.catMatchHandler.GetMatches)).Methods("GET")
-	v1.HandleFunc("/cat/match/approve", s.baseHandler.RunActionAuth(s.catMatchHandler.ApproveReqest)).Methods("POST")
+	v1.HandleFunc("/cat/match/approve", s.baseHandler.RunActionAuth(s.catMatchHandler.ApproveRequest)).Methods("POST")
 	v1.HandleFunc("/cat/match/reject", s.baseHandler.RunActionAuth(s.catMatchHandler.RejectRequest)).Methods("POST")
 	v1.HandleFunc("/cat/match/{id:[1-9][0-9]*}", s.baseHandler.RunActionAuth(s.catMatchHandler.DeleteMatch)).Methods("DELETE")
 

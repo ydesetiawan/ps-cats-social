@@ -54,3 +54,17 @@ func NewErrInternalServerError(msg string, dataId any, errData ErrorData) error 
 		},
 	)
 }
+
+func NewErrInternalServerErrors(msg string, dataId any) error {
+	return WrapErrorWithStackTrace(
+		ErrUnprocessableEntity{
+			ErrBase: ErrBase{
+				msg:           msg,
+				ErrorData:     ErrorData{},
+				StatusCode:    http.StatusInternalServerError,
+				StatusMessage: http.StatusText(http.StatusInternalServerError),
+			},
+			DataId: dataId,
+		},
+	)
+}
