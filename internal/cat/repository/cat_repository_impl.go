@@ -134,6 +134,7 @@ func (r *CatRepositoryImpl) SearchCat(params map[string]interface{}) ([]model.Ca
 			return nil, err
 		}
 		cat.ImageUrls = helper.ParsePostgresArray(cat.ImageUrlsString)
+		cat.CreatedAtISOFormat = cat.CreatedAt.Format(time.RFC3339)
 		cats = append(cats, cat)
 	}
 	if err := rows.Err(); err != nil {
