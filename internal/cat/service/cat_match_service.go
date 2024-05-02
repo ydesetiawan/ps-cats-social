@@ -107,5 +107,27 @@ func (s *CatMatchService) MatchApproval(matchId int64, activeUserId int64, match
 		}
 	}
 
-	return err
+	return nil
+}
+
+func (s *CatMatchService) DeleteMatch(matchId int64, activeUserId int64) error {
+	catMatch, err := s.catMatchRepository.GetMatchByID(matchId)
+	if err != nil || helper.IsStructEmpty(catMatch) {
+		return errs.NewErrDataNotFound("matchCatId is not found", matchId, errs.ErrorData{})
+	}
+
+	if activeUserId == catMatch.IssuerID {
+		return errs.NewErrBadRequest("match can only be deleted by issuer")
+	}
+
+	if !(model.Pending == catMatch.Status) {
+		return errs.NewErrBadRequest("matchId is already approved / reject")
+	}
+
+	err = s.catMatchRepository.DeleteByIds([]int64{matchId})
+	if err != nil {
+		return errs.NewErrInternalServerErrors("error when [MatchApproval]", err.Error())
+	}
+
+	return nil
 }

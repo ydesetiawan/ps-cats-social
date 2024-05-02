@@ -21,7 +21,7 @@ import (
 	userservice "ps-cats-social/internal/user/service"
 	bhandler "ps-cats-social/pkg/base/handler"
 	"ps-cats-social/pkg/logger"
-	mysqlqgen "ps-cats-social/pkg/psqlqgen"
+	psqlqgen "ps-cats-social/pkg/psqlqgen"
 	"strings"
 	"time"
 )
@@ -146,7 +146,7 @@ func dbInitConnection() *sqlx.DB {
 	pass := "123"
 	dbname := "cats_social"
 
-	return mysqlqgen.Init(host, port, uname, pass, dbname, shared.ServiceName)
+	return psqlqgen.Init(host, port, uname, pass, dbname, shared.ServiceName)
 }
 
 func initInfra() {

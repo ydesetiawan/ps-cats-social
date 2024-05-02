@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/internal/cat/service"
@@ -9,6 +10,7 @@ import (
 	"ps-cats-social/pkg/base/app"
 	"ps-cats-social/pkg/helper"
 	"ps-cats-social/pkg/httphelper/response"
+	"strconv"
 )
 
 type CatMatchHTTPHandler struct {
@@ -99,6 +101,16 @@ func (h *CatMatchHTTPHandler) RejectRequest(ctx *app.Context) *response.WebRespo
 }
 
 func (h *CatMatchHTTPHandler) DeleteMatch(ctx *app.Context) *response.WebResponse {
+
+	vars := mux.Vars(ctx.Request)
+	id, _ := vars["id"]
+	catMatchId, _ := strconv.Atoi(id)
+
+	userId, err := shared.ExtractUserId(ctx)
+	helper.PanicIfError(err, "error when ExtractUserId")
+
+	err = h.catchMatchService.DeleteMatch(int64(catMatchId), userId)
+	helper.PanicIfError(err, "error DeleteMatch")
 
 	return &response.WebResponse{
 		Status:  200,
