@@ -57,15 +57,18 @@ func (h *CatHttpHandler) CreateCat(ctx *app.Context) *response.WebResponse {
 		return &response.WebResponse{
 			Status:  400,
 			Message: "Bad Request : " + err.Error(),
+			Data:    dto.SavedCatResp{},
 		}
 	}
 	userId, err := shared.ExtractUserId(ctx)
 	helper.PanicIfError(err, "error ExtractUserId")
+
 	res, err := h.catService.CreateCat(request, userId)
 	if err != nil {
 		return &response.WebResponse{
 			Status:  500,
-			Message: "error",
+			Message: "Error when CreateCat",
+			Data:    dto.SavedCatResp{},
 		}
 	}
 

@@ -26,6 +26,7 @@ func NewCat(req CatReq, userId int64) *model.Cat {
 		Race:        req.Race,
 		Sex:         req.Sex,
 		AgeInMonth:  req.AgeInMonth,
+		ImageUrls:   req.ImageUrls,
 		Description: req.Description,
 	}
 }
@@ -38,6 +39,7 @@ func NewCatWithID(req CatReq, userId int64, catId int64) *model.Cat {
 		Race:        req.Race,
 		Sex:         req.Sex,
 		AgeInMonth:  req.AgeInMonth,
+		ImageUrls:   req.ImageUrls,
 		Description: req.Description,
 	}
 }

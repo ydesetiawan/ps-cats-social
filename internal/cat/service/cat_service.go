@@ -27,7 +27,7 @@ func (s *CatService) SearchCat(params map[string]interface{}) ([]model.Cat, erro
 func (s *CatService) CreateCat(req dto.CatReq, userId int64) (*dto.SavedCatResp, error) {
 	result, err := s.catRepository.CreateCat(dto.NewCat(req, userId))
 	if err != nil {
-		return &dto.SavedCatResp{}, err
+		return nil, err
 	}
 
 	return &dto.SavedCatResp{

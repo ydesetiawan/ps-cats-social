@@ -8,16 +8,10 @@ CREATE TABLE cats (
     race race_enum NOT NULL,
     sex sex_enum NOT NULL,
     age_in_month INT NOT NULL,
+    image_urls TEXT[],
     description VARCHAR(200) NOT NULL,
     has_matched BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 CREATE INDEX idx_cats_all_columns ON cats (name);
-
-CREATE TABLE cat_images (
-    id SERIAL PRIMARY KEY,
-    cat_id SERIAL NOT NULL,
-    url TEXT NOT NULL,
-    FOREIGN KEY (cat_id) REFERENCES cats(id)
-);

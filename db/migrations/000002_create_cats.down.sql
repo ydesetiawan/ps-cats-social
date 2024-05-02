@@ -1,4 +1,3 @@
-DROP TABLE cat_images;
 DROP TABLE cats;
 
 DROP TYPE race_enum;
