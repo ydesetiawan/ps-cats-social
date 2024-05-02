@@ -5,6 +5,7 @@ import (
 	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/pkg/errs"
+	"ps-cats-social/pkg/helper"
 	"strconv"
 	"time"
 )
@@ -20,9 +21,9 @@ func NewCatRepositoryImpl(db *sqlx.DB) *CatRepositoryImpl {
 func (r *CatRepositoryImpl) CreateCat(cat *model.Cat) (model.Cat, error) {
 	var lastInsertId int64 = 0
 	createdAt := time.Now()
-	query := "INSERT INTO cats (user_id, name, race, sex, age_in_month, created_at, description) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id"
+	query := "INSERT INTO cats (user_id, name, race, sex, age_in_month,image_urls, created_at, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id"
 	err := r.db.QueryRowx(
-		query, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.AgeInMonth, createdAt, cat.Description).Scan(&lastInsertId)
+		query, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.AgeInMonth, helper.ConvertSliceToPostgresArray(cat.ImageUrls), createdAt, cat.Description).Scan(&lastInsertId)
 
 	if err != nil {
 		return model.Cat{}, err
@@ -42,9 +43,9 @@ func (r *CatRepositoryImpl) GetCatByIDAndUserID(catId int64, userId int64) (mode
 }
 
 func (r *CatRepositoryImpl) UpdateCat(cat *model.Cat) (model.Cat, error) {
-	query := "UPDATE cats SET user_id = $1, name = $2, race = $3, sex = $4, age_in_month = $5, description = $6 WHERE id = $7"
+	query := "UPDATE cats SET user_id = $1, name = $2, race = $3, sex = $4, age_in_month = $5, image_urls = $6, description = $7 WHERE id = $8"
 	_, err := r.db.Queryx(
-		query, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.AgeInMonth, cat.Description, cat.ID)
+		query, cat.UserID, cat.Name, cat.Race, cat.Sex, cat.AgeInMonth, helper.ConvertSliceToPostgresArray(cat.ImageUrls), cat.Description, cat.ID)
 
 	if err != nil {
 		return model.Cat{}, err
@@ -133,10 +134,11 @@ func (r *CatRepositoryImpl) SearchCat(params map[string]interface{}) ([]model.Ca
 	var cats []model.Cat
 	for rows.Next() {
 		var cat model.Cat
-		err := rows.Scan(&cat.ID, &cat.UserID, &cat.Name, &cat.Race, &cat.Sex, &cat.AgeInMonth, &cat.Description, &cat.HasMatched, &cat.CreatedAt)
+		err := rows.Scan(&cat.ID, &cat.UserID, &cat.Name, &cat.Race, &cat.Sex, &cat.AgeInMonth, &cat.ImageUrlsString, &cat.Description, &cat.HasMatched, &cat.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
+		cat.ImageUrls = helper.ParsePostgresArray(cat.ImageUrlsString)
 		cats = append(cats, cat)
 	}
 	if err := rows.Err(); err != nil {
