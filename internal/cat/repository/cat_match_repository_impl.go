@@ -112,12 +112,12 @@ func (r *CatMatchRepositoryImpl) GetMatches(userId int64) ([]dto.CatMatchResp, e
         JOIN
             cats c_user ON cm.user_cat_id = c_user.id
         WHERE
-            u_issuer.id = $1 OR u_receiver.id = $1
+            (u_issuer.id = $1 OR u_receiver.id = $1) AND cm.status = $2 
         ORDER BY
             match_created_at DESC
     `
 
-	rows, err := r.db.Query(query, userId)
+	rows, err := r.db.Query(query, userId, model.Pending)
 	if err != nil {
 		panic(err)
 	}
