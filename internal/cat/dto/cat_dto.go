@@ -62,12 +62,47 @@ const (
 	LessThan4  AgeType = "ageInMonth=<4"
 )
 
-func IsAgeTypeExists(val string) bool {
+func isAgeTypeExists(val string) bool {
 	types := []AgeType{MoreThan4, EqualWith4, LessThan4}
 
 	ageType := AgeType(val)
 	for _, t := range types {
 		if t == ageType {
+			return true
+		}
+	}
+	return false
+}
+
+func isRaceExists(val string) bool {
+	races := []model.Race{
+		model.Persian,
+		model.MaineCoon,
+		model.Siamese,
+		model.Ragdoll,
+		model.Bengal,
+		model.Sphynx,
+		model.BritishShorthair,
+		model.Abyssinian,
+		model.ScottishFold,
+		model.Birman,
+	}
+
+	race := model.Race(val)
+	for _, r := range races {
+		if r == race {
+			return true
+		}
+	}
+	return false
+}
+
+func isSexExists(val string) bool {
+	sexs := []model.Sex{model.Male, model.Female}
+
+	sex := model.Sex(val)
+	for _, s := range sexs {
+		if s == sex {
 			return true
 		}
 	}
@@ -96,7 +131,7 @@ func GenerateCatReqParams(ctx *app.Context) (map[string]interface{}, error) {
 
 	reqRace := ctx.Request.URL.Query().Get("race")
 	if "" != reqRace {
-		if model.IsRaceExists(reqRace) {
+		if isRaceExists(reqRace) {
 			params["race"] = model.Race(reqRace)
 		} else {
 			return nil, errors.New("DATA NOT FOUND")
@@ -105,7 +140,7 @@ func GenerateCatReqParams(ctx *app.Context) (map[string]interface{}, error) {
 
 	reqSex := ctx.Request.URL.Query().Get("sex")
 	if "" != reqSex {
-		if model.IsSexExists(reqSex) {
+		if isSexExists(reqSex) {
 			params["sex"] = model.Race(reqSex)
 		} else {
 			return nil, errors.New("DATA NOT FOUND")
@@ -114,7 +149,7 @@ func GenerateCatReqParams(ctx *app.Context) (map[string]interface{}, error) {
 
 	reqAgeInMonth := ctx.Request.URL.Query().Get("ageInMonth")
 	if "" != reqAgeInMonth {
-		if IsAgeTypeExists(reqAgeInMonth) {
+		if isAgeTypeExists(reqAgeInMonth) {
 			params["ageInMonth"] = AgeType(reqAgeInMonth)
 		} else {
 			return nil, errors.New("DATA NOT FOUND")

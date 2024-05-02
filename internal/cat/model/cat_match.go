@@ -12,7 +12,8 @@ const (
 
 type CatMatch struct {
 	ID         int64       `json:"id" db:"id"`
-	UserID     int64       `json:"user_id" db:"user_id"`
+	IssuerID   int64       `json:"-" db:"issuer_id"`
+	ReceiverID int64       `json:"-" db:"receiver_id"`
 	MatchCatID int64       `json:"match_cat_id" db:"match_cat_id"`
 	UserCatID  int64       `json:"user_cat_id" db:"user_cat_id"`
 	Message    string      `json:"message" db:"message"`
