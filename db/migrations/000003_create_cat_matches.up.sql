@@ -1,4 +1,4 @@
-CREATE TYPE status_match_enum AS ENUM ('pending', 'approved', 'reject');
+CREATE TYPE status_match_enum AS ENUM ('pending', 'approved', 'rejected');
 
 CREATE TABLE cat_matches (
     id SERIAL PRIMARY KEY,
@@ -11,4 +11,4 @@ CREATE TABLE cat_matches (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE INDEX idx_cat_matches_all_columns ON cat_matches (user_cat_id, match_cat_id);
+CREATE INDEX idx_cat_matches_all_columns ON cat_matches (user_cat_id, match_cat_id,status);

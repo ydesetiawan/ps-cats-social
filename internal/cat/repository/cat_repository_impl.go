@@ -41,6 +41,13 @@ func (r *CatRepositoryImpl) GetCatByIDAndUserID(catId int64, userId int64) (mode
 	return cat, err
 }
 
+func (r *CatRepositoryImpl) GetCatByID(catId int64) (model.Cat, error) {
+	var cat model.Cat
+	query := "select * from cats where id = $1"
+	err := r.db.Get(&cat, query, catId)
+	return cat, err
+}
+
 func (r *CatRepositoryImpl) UpdateCat(cat *model.Cat) (model.Cat, error) {
 	query := "UPDATE cats SET user_id = $1, name = $2, race = $3, sex = $4, age_in_month = $5, image_urls = $6, description = $7 WHERE id = $8"
 	_, err := r.db.Queryx(

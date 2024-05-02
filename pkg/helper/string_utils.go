@@ -1,6 +1,9 @@
 package helper
 
-import "strings"
+import (
+	"reflect"
+	"strings"
+)
 
 func ConvertSliceToPostgresArray(slice []string) string {
 	arrayString := "{"
@@ -28,4 +31,29 @@ func ParsePostgresArray(src string) []string {
 		values[i] = strings.TrimSpace(values[i])
 	}
 	return values
+}
+
+func IsStructEmpty(s interface{}) bool {
+	v := reflect.ValueOf(s)
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		switch field.Kind() {
+		case reflect.String:
+			if field.String() != "" {
+				return false
+			}
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			if field.Int() != 0 {
+				return false
+			}
+		case reflect.Bool:
+			if field.Bool() != false {
+				return false
+			}
+		// Add cases for other types as needed
+		default:
+			// Handle other types if necessary
+		}
+	}
+	return true
 }

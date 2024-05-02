@@ -11,3 +11,9 @@ func PanicIfError(err error, msg string) {
 		panic(errs.UnwrapError(err))
 	}
 }
+
+func Panic400IfError(err error) {
+	if err != nil {
+		panic(errs.NewErrBadRequest(err.Error()))
+	}
+}
