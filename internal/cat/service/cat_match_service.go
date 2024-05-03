@@ -37,6 +37,7 @@ func NewCatMatchService(
 - `401` request token is missing or expired
 */
 func (s *CatMatchService) MatchCat(request dto.CatMatchReq, userId int64) error {
+
 	matchCat, err := s.catRepository.GetCatByID(request.MatchCatId)
 	if err != nil || helper.IsStructEmpty(matchCat) {
 		return errs.NewErrDataNotFound("matchCatId is not found", request.MatchCatId, errs.ErrorData{})
@@ -116,7 +117,7 @@ func (s *CatMatchService) DeleteMatch(matchId int64, activeUserId int64) error {
 		return errs.NewErrDataNotFound("matchCatId is not found", matchId, errs.ErrorData{})
 	}
 
-	if activeUserId == catMatch.IssuerID {
+	if activeUserId != catMatch.IssuerID {
 		return errs.NewErrBadRequest("match can only be deleted by issuer")
 	}
 
