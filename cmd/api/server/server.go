@@ -2,9 +2,6 @@ package server
 
 import (
 	"fmt"
-	"github.com/rs/cors"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
-	muxtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gorilla/mux"
 	"log/slog"
 	"net/http"
 	catbandler "ps-cats-social/internal/cat/handler"
@@ -12,6 +9,9 @@ import (
 	userhandler "ps-cats-social/internal/user/handler"
 	bhandler "ps-cats-social/pkg/base/handler"
 	"time"
+	"github.com/rs/cors"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	muxtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gorilla/mux"
 )
 
 type Server struct {
@@ -28,6 +28,7 @@ func NewServer(
 	userHandler *userhandler.UserHTTPHandler,
 	catHandler *catbandler.CatHttpHandler,
 	catMatchHandler *catbandler.CatMatchHTTPHandler,
+	port int,
 ) Server {
 	return Server{
 		baseHandler:     bHandler,
@@ -35,7 +36,7 @@ func NewServer(
 		catHandler:      catHandler,
 		catMatchHandler: catMatchHandler,
 		router:          muxtrace.NewRouter(muxtrace.WithServiceName(shared.ServiceName)),
-		port:            8080,
+		port:            port,
 	}
 }
 
