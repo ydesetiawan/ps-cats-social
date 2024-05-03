@@ -101,7 +101,7 @@ func (h *CatHttpHandler) UpdateCat(ctx *app.Context) *response.WebResponse {
 	helper.PanicIfError(err, "error when UpdateCatCat")
 
 	return &response.WebResponse{
-		Status:  201,
+		Status:  200,
 		Message: "cat already updated successfully",
 		Data:    res,
 	}
