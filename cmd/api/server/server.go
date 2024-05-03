@@ -9,7 +9,6 @@ import (
 	userhandler "ps-cats-social/internal/user/handler"
 	bhandler "ps-cats-social/pkg/base/handler"
 	"time"
-
 	"github.com/rs/cors"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	muxtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gorilla/mux"
