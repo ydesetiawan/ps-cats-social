@@ -115,14 +115,14 @@ func initInfra() {
 	dbConnection := dbInitConnection()
 
 	userRepository := userrepository.NewUserRepositoryImpl(dbConnection)
-	userService := userservice.NewUserService(userRepository)
-	userHandler = userhandler.NewUserHTTPHandler(userService)
-
 	catRepository := catrepository.NewCatRepositoryImpl(dbConnection)
-	catService := catservice.NewCatService(catRepository)
-	catHandler = cathandler.NewCatHttpHandler(catService)
-
 	catMatchRepository := catrepository.NewCatMatchRepositoryImpl(dbConnection)
+
+	userService := userservice.NewUserService(userRepository)
+	catService := catservice.NewCatService(catRepository, catMatchRepository)
 	catMatchService := catservice.NewCatMatchService(catRepository, userRepository, catMatchRepository)
+
+	catHandler = cathandler.NewCatHttpHandler(catService)
+	userHandler = userhandler.NewUserHTTPHandler(userService)
 	catMatchHandler = cathandler.NewCatMatchHTTPHandler(catMatchService)
 }

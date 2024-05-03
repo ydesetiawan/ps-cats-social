@@ -12,10 +12,10 @@ import (
 
 type CatReq struct {
 	Name        string     `json:"name" validate:"required,min=1,max=30"`
-	Race        model.Race `json:"race" validate:"required,oneof=Persian MaineCoon Siamese Ragdoll Bengal Sphynx BritishShorthair Abyssinian ScottishFold Birman"`
+	Race        model.Race `json:"race" validate:"required"`
 	Sex         model.Sex  `json:"sex" validate:"required,oneof=male female"`
 	AgeInMonth  int        `json:"ageInMonth" validate:"required,min=1,max=120082"`
-	Description string     `json:"description" validate:"required,min=1,max=200"`
+	Description string     `json:"description" validate:"required,min=1,max=201"`
 	ImageUrls   []string   `json:"imageUrls" validate:"required,min=1,dive,required,url"`
 }
 
@@ -89,6 +89,28 @@ func isRaceExists(val string) bool {
 	}
 
 	race := model.Race(val)
+	for _, r := range races {
+		if r == race {
+			return true
+		}
+	}
+	return false
+}
+
+func IsRaceEnumExists(race model.Race) bool {
+	races := []model.Race{
+		model.Persian,
+		model.MaineCoon,
+		model.Siamese,
+		model.Ragdoll,
+		model.Bengal,
+		model.Sphynx,
+		model.BritishShorthair,
+		model.Abyssinian,
+		model.ScottishFold,
+		model.Birman,
+	}
+
 	for _, r := range races {
 		if r == race {
 			return true

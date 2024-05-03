@@ -1,4 +1,4 @@
-CREATE TYPE race_enum AS ENUM ('Persian', 'MaineCoon', 'Siamese', 'Ragdoll', 'Bengal', 'Sphynx', 'BritishShorthair', 'Abyssinian', 'ScottishFold', 'Birman');
+CREATE TYPE race_enum AS ENUM ('Persian', 'Maine Coon', 'Siamese', 'Ragdoll', 'Bengal', 'Sphynx', 'British Shorthair', 'Abyssinian', 'Scottish Fold', 'Birman');
 CREATE TYPE sex_enum AS ENUM ('male', 'female');
 
 CREATE TABLE cats (

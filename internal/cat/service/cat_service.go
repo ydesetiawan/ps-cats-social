@@ -8,12 +8,14 @@ import (
 )
 
 type CatService struct {
-	catRepository repository.CatRepository
+	catRepository      repository.CatRepository
+	catMatchRepository repository.CatMatchRepository
 }
 
-func NewCatService(catRepository repository.CatRepository) *CatService {
+func NewCatService(catRepository repository.CatRepository, catMatchRepository repository.CatMatchRepository) *CatService {
 	return &CatService{
-		catRepository: catRepository,
+		catRepository:      catRepository,
+		catMatchRepository: catMatchRepository,
 	}
 }
 
@@ -38,18 +40,27 @@ func (s *CatService) CreateCat(req dto.CatReq, userId int64) (*dto.SavedCatResp,
 }
 
 func (s *CatService) UpdateCatCat(req dto.CatReq, userId int64, catId int64) (*dto.SavedCatResp, error) {
-	_, err := s.catRepository.GetCatByIDAndUserID(catId, userId)
+	cat, err := s.catRepository.GetCatByIDAndUserID(catId, userId)
 	if err != nil {
 		return &dto.SavedCatResp{}, errs.NewErrDataNotFound("cat id is not found", catId, errs.ErrorData{})
 	}
-	cat, err := s.catRepository.UpdateCat(dto.NewCatWithID(req, userId, catId))
+
+	if req.Sex != cat.Sex {
+		matchIds, err := s.catMatchRepository.GetMatchIDsByCatMatchIDOrCatUserID(catId)
+		if err == nil && len(matchIds) > 0 {
+			return &dto.SavedCatResp{}, errs.NewErrBadRequest("cat that is matched should not be able to edit the gender")
+		}
+
+	}
+
+	updatedCat, err := s.catRepository.UpdateCat(dto.NewCatWithID(req, userId, catId))
 	if err != nil {
 		return &dto.SavedCatResp{}, err
 	}
 
 	return &dto.SavedCatResp{
-		cat.ID,
-		cat.CreatedAt,
+		updatedCat.ID,
+		updatedCat.CreatedAt,
 	}, err
 }
 
