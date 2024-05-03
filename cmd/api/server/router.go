@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/alexliesenfeld/health"
 	healthcheckhandler "ps-cats-social/internal/healthcheck/handler"
+	"github.com/alexliesenfeld/health"
 )
 
 func (s *Server) setupRouter() {
