@@ -8,6 +8,7 @@ import (
 	"ps-cats-social/internal/cat/service"
 	"ps-cats-social/internal/shared"
 	"ps-cats-social/pkg/base/app"
+	"ps-cats-social/pkg/errs"
 	"ps-cats-social/pkg/helper"
 	"ps-cats-social/pkg/httphelper/response"
 	"strconv"
@@ -55,6 +56,11 @@ func (h *CatHttpHandler) CreateCat(ctx *app.Context) *response.WebResponse {
 
 	err = dto.ValidateCatReq(request)
 	helper.Panic400IfError(err)
+
+	exists := dto.IsRaceEnumExists(request.Race)
+	if !exists {
+		helper.Panic400IfError(errs.NewErrBadRequest("Race is not valid"))
+	}
 
 	userId, err := shared.ExtractUserId(ctx)
 	helper.PanicIfError(err, "error ExtractUserId")

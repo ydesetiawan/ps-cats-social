@@ -8,14 +8,14 @@ type Race string
 
 const (
 	Persian          Race = "Persian"
-	MaineCoon        Race = "MaineCoon"
+	MaineCoon        Race = "Maine Coon"
 	Siamese          Race = "Siamese"
 	Ragdoll          Race = "Ragdoll"
 	Bengal           Race = "Bengal"
 	Sphynx           Race = "Sphynx"
-	BritishShorthair Race = "BritishShorthair"
+	BritishShorthair Race = "British Shorthair"
 	Abyssinian       Race = "Abyssinian"
-	ScottishFold     Race = "ScottishFold"
+	ScottishFold     Race = "Scottish Fold"
 	Birman           Race = "Birman"
 )
 

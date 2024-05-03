@@ -21,7 +21,7 @@ func NewCatMatchRepositoryImpl(db *sqlx.DB) *CatMatchRepositoryImpl {
 
 func (r *CatMatchRepositoryImpl) GetMatchIDsByCatMatchIDOrCatUserID(catId int64) ([]int64, error) {
 	var ids []int64
-	query := `SELECT id FROM cat_matches WHERE (issuer_id = $1 OR receiver_id = $1) AND status = $2`
+	query := `SELECT id FROM cat_matches WHERE (user_cat_id = $1 OR match_cat_id = $1) AND status = $2`
 	rows, err := r.db.Query(query, catId, model.Pending)
 	if err != nil {
 		return nil, err
