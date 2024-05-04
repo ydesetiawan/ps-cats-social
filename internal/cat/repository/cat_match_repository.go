@@ -12,5 +12,4 @@ type CatMatchRepository interface {
 	GetMatches(userId int64) ([]dto.CatMatchResp, error)
 	MatchApproval(catMatchId int64, status model.MatchStatus) error
 	DeleteByIds(ids []int64) error
-	GetMatchCatByMatchCatIdAndUserCatId(matchCatId int64, userCatId int64) (model.CatMatch, error)
 }

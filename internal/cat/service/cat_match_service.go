@@ -48,11 +48,6 @@ func (s *CatMatchService) MatchCat(request dto.CatMatchReq, userId int64) error 
 		return errs.NewErrDataNotFound("userCat is not found", request.UserCatId, errs.ErrorData{})
 	}
 
-	match, _ := s.catMatchRepository.GetMatchCatByMatchCatIdAndUserCatId(matchCat.ID, userCat.ID)
-	if !helper.IsStructEmpty(match) {
-		return errs.NewErrBadRequest("matchCatId & userCatId already matched")
-	}
-
 	if userId != userCat.UserID {
 		return errs.NewErrDataNotFound("userCat is not belong to the user", request.UserCatId, errs.ErrorData{})
 	}
