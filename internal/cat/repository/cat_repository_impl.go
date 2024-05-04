@@ -1,13 +1,14 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
 	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/pkg/errs"
 	"ps-cats-social/pkg/helper"
 	"strconv"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type CatRepositoryImpl struct {
@@ -92,6 +93,10 @@ func (r *CatRepositoryImpl) SearchCat(params map[string]interface{}) ([]model.Ca
 			num++
 		case "userID":
 			query += " AND user_id = $" + strconv.Itoa(num)
+			isAddArgs = true
+			num++
+		case "userIDExclude":
+			query += " AND user_id != $" + strconv.Itoa(num)
 			isAddArgs = true
 			num++
 		case "search":
