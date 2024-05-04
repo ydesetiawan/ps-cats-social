@@ -1,3 +1,6 @@
+migration_setup:
+	psql -U postgres -c "CREATE DATABASE cats_social;"
+
 migration_up:
 	migrate -path db/migrations/ -database "postgresql://postgres:@localhost:5432/cats_social?sslmode=disable" -verbose up
 
