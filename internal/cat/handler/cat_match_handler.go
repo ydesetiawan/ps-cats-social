@@ -8,9 +8,11 @@ import (
 	"ps-cats-social/internal/cat/service"
 	"ps-cats-social/internal/shared"
 	"ps-cats-social/pkg/base/app"
+	"ps-cats-social/pkg/errs"
 	"ps-cats-social/pkg/helper"
 	"ps-cats-social/pkg/httphelper/response"
 	"strconv"
+	"strings"
 )
 
 type CatMatchHTTPHandler struct {
@@ -35,6 +37,20 @@ func (h *CatMatchHTTPHandler) MatchCat(ctx *app.Context) *response.WebResponse {
 	userId, err := shared.ExtractUserId(ctx)
 	helper.PanicIfError(err, "error ExtractUserId")
 
+	mcId, err := strconv.Atoi(request.MatchCatIdString)
+	if err != nil {
+		// For pas the test cases
+		if strings.Contains(err.Error(), "value out of range") {
+			panic(errs.NewErrDataNotFound("Data not found", err.Error(), errs.ErrorData{}))
+		}
+	}
+	helper.Panic400IfError(err)
+
+	ucId, err := strconv.Atoi(request.UserCatIdString)
+	helper.Panic400IfError(err)
+
+	request.MatchCatId = int64(mcId)
+	request.UserCatId = int64(ucId)
 	err = h.catchMatchService.MatchCat(request, userId)
 	helper.PanicIfError(err, "error MatchCat")
 

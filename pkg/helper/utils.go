@@ -59,6 +59,10 @@ func IsStructEmpty(s interface{}) bool {
 	return true
 }
 
+func IntToString(i int64) string {
+	return strconv.FormatInt(i, 10)
+}
+
 func CombineAndUniqueWithExclusion(a, b []int64, exclude ...int64) []int64 {
 	// Create a map to store unique elements
 	unique := make(map[int64]struct{})

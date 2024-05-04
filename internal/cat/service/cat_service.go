@@ -5,6 +5,7 @@ import (
 	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/internal/cat/repository"
 	"ps-cats-social/pkg/errs"
+	"ps-cats-social/pkg/helper"
 )
 
 type CatService struct {
@@ -34,7 +35,7 @@ func (s *CatService) CreateCat(req dto.CatReq, userId int64) (*dto.SavedCatResp,
 	}
 
 	return &dto.SavedCatResp{
-		result.ID,
+		helper.IntToString(result.ID),
 		result.CreatedAt,
 	}, err
 }
@@ -59,7 +60,7 @@ func (s *CatService) UpdateCatCat(req dto.CatReq, userId int64, catId int64) (*d
 	}
 
 	return &dto.SavedCatResp{
-		updatedCat.ID,
+		helper.IntToString(updatedCat.ID),
 		updatedCat.CreatedAt,
 	}, err
 }

@@ -7,9 +7,11 @@ import (
 )
 
 type CatMatchReq struct {
-	MatchCatId int64  `json:"matchCatId" validate:"required,number,min=1"`
-	UserCatId  int64  `json:"userCatId" validate:"required,number,min=1"`
-	Message    string `json:"message" validation:"required,min=5,max=120"`
+	Message          string `json:"message" validate:"required,min=5,max=120"`
+	MatchCatIdString string `json:"matchCatId" validate:"required"`
+	UserCatIdString  string `json:"userCatId" validate:"required"`
+	MatchCatId       int64  `json:"-" validate:"-"`
+	UserCatId        int64  `json:"-" validate:"-"`
 }
 
 func ValidateCatMatchReq(req CatMatchReq) error {
