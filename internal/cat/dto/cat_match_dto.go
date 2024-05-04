@@ -1,15 +1,38 @@
 package dto
 
 import (
-	"github.com/go-playground/validator/v10"
 	"ps-cats-social/internal/cat/model"
+	"strconv"
 	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
+type StringableInt64 int64
+
+func (u *StringableInt64) UnmarshalJSON(bs []byte) error {
+	str := string(bs)
+	if bs[0] == '"' && bs[len(bs)-1] == '"' {
+		str = string(bs[1 : len(bs)-1])
+	}
+	x, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		if numError, ok := err.(*strconv.NumError); ok {
+			if numError.Err == strconv.ErrRange {
+				x = 1<<63 - 1
+			}
+		} else {
+			return err
+		}
+	}
+	*u = StringableInt64(x)
+	return nil
+}
+
 type CatMatchReq struct {
-	MatchCatId int64  `json:"matchCatId" validate:"required,number,min=1"`
-	UserCatId  int64  `json:"userCatId" validate:"required,number,min=1"`
-	Message    string `json:"message" validation:"required,min=5,max=120"`
+	MatchCatId StringableInt64 `json:"matchCatId" validate:"required,number,min=1"`
+	UserCatId  StringableInt64 `json:"userCatId" validate:"required,number,min=1"`
+	Message    string          `json:"message" validation:"required,min=5,max=120"`
 }
 
 func ValidateCatMatchReq(req CatMatchReq) error {
@@ -19,8 +42,8 @@ func ValidateCatMatchReq(req CatMatchReq) error {
 
 func NewCatMatch(req CatMatchReq, status model.MatchStatus, issuerId int64, receiverId int64) *model.CatMatch {
 	return &model.CatMatch{
-		MatchCatID: req.MatchCatId,
-		UserCatID:  req.UserCatId,
+		MatchCatID: int64(req.MatchCatId),
+		UserCatID:  int64(req.UserCatId),
 		IssuerID:   issuerId,
 		ReceiverID: receiverId,
 		Message:    req.Message,
