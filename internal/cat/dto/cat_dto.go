@@ -2,12 +2,13 @@ package dto
 
 import (
 	"errors"
-	"github.com/go-playground/validator/v10"
 	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/internal/shared"
 	"ps-cats-social/pkg/base/app"
 	"strconv"
 	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type CatReq struct {
@@ -189,6 +190,9 @@ func GenerateCatReqParams(ctx *app.Context) (map[string]interface{}, error) {
 	if err == nil && owned {
 		userId, _ := shared.ExtractUserId(ctx)
 		params["userID"] = userId
+	} else if err == nil && !owned {
+		userId, _ := shared.ExtractUserId(ctx)
+		params["userIDExclude"] = userId
 	}
 
 	reqSearch := ctx.Request.URL.Query().Get("search")
