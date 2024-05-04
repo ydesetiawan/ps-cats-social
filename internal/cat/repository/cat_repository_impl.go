@@ -150,6 +150,7 @@ func (r *CatRepositoryImpl) SearchCat(params map[string]interface{}) ([]model.Ca
 		if err != nil {
 			return nil, errs.NewErrInternalServerErrors("execute query error [GetCat]: ", err.Error())
 		}
+		cat.IDString = helper.IntToString(cat.ID)
 		cat.ImageUrls = helper.ParsePostgresArray(cat.ImageUrlsString)
 		cat.CreatedAtISOFormat = cat.CreatedAt.Format(time.RFC3339)
 		cats = append(cats, cat)

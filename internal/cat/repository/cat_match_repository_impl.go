@@ -164,10 +164,12 @@ func (r *CatMatchRepositoryImpl) GetMatches(userId int64) ([]dto.CatMatchResp, e
 		catMatch.IssuedBy = issuer
 
 		catMatch.MatchCatDetail = matchCat
+		catMatch.MatchCatDetail.IDString = helper.IntToString(catMatch.MatchCatDetail.ID)
 		catMatch.MatchCatDetail.ImageUrls = helper.ParsePostgresArray(matchCat.ImageUrlsString)
 		catMatch.MatchCatDetail.CreatedAtISOFormat = matchCat.CreatedAt.Format(time.RFC3339)
 
 		catMatch.UserCatDetail = userCat
+		catMatch.UserCatDetail.IDString = helper.IntToString(catMatch.UserCatDetail.ID)
 		catMatch.UserCatDetail.ImageUrls = helper.ParsePostgresArray(userCat.ImageUrlsString)
 		catMatch.UserCatDetail.CreatedAtISOFormat = userCat.CreatedAt.Format(time.RFC3339)
 

@@ -27,7 +27,7 @@ const (
 )
 
 type Cat struct {
-	ID                 int64     `json:"id" db:"id"`
+	ID                 int64     `json:"-" db:"id"`
 	UserID             int64     `json:"user_id" db:"user_id"`
 	Name               string    `json:"name" db:"name"`
 	Race               Race      `json:"race" db:"race"`
@@ -39,4 +39,5 @@ type Cat struct {
 	HasMatched         bool      `json:"hasMatched" db:"has_matched"`
 	CreatedAt          time.Time `json:"-" db:"created_at"`
 	CreatedAtISOFormat string    `json:"createdAt" db:"-"`
+	IDString           string    `json:"id" db:"-"`
 }
