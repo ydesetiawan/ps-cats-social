@@ -1,12 +1,13 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
 	"ps-cats-social/internal/cat/dto"
 	"ps-cats-social/internal/cat/model"
 	"ps-cats-social/pkg/errs"
 	"ps-cats-social/pkg/helper"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type CatMatchRepositoryImpl struct {
@@ -204,4 +205,14 @@ func (r *CatMatchRepositoryImpl) DeleteByIds(ids []int64) error {
 	}
 
 	return nil
+}
+
+func (r *CatMatchRepositoryImpl) GetMatchCatByMatchCatIdAndUserCatId(matchCatId int64, userCatId int64) (model.CatMatch, error) {
+	var cat model.CatMatch
+	query := "select * from cat_matches where match_cat_id = $1 and user_cat_id = $2"
+	err := r.db.Get(&cat, query, matchCatId, userCatId)
+	if err != nil {
+		return model.CatMatch{}, errs.NewErrInternalServerErrors("execute query error [GetMatchByID]: ", err.Error())
+	}
+	return cat, err
 }
