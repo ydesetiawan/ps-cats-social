@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"log/slog"
@@ -48,13 +49,13 @@ func loggingMiddleware(next http.Handler) http.Handler {
 		log.Printf("[%s] %s %s", time.Now().Format("2006-01-02 15:04:05"), r.Method, r.URL.Path)
 
 		// Create a custom response writer to intercept the response status code
-		crw := &customResponseWriter{ResponseWriter: w}
+		crw := &customResponseWriter{ResponseWriter: w, buf: bytes.NewBuffer(nil)}
 
 		// Call the next handler in the chain
 		next.ServeHTTP(crw, r)
 
 		// Log details about the outgoing response
-		log.Printf("[%s] Response Status: %d", time.Now().Format("2006-01-02 15:04:05"), crw.status)
+		log.Printf("[%s] Response Status: %d, Response Body: %s", time.Now().Format("2006-01-02 15:04:05"), crw.status, crw.buf.String())
 	})
 }
 
@@ -62,11 +63,17 @@ func loggingMiddleware(next http.Handler) http.Handler {
 type customResponseWriter struct {
 	http.ResponseWriter
 	status int
+	buf    *bytes.Buffer
 }
 
 func (crw *customResponseWriter) WriteHeader(code int) {
 	crw.status = code
 	crw.ResponseWriter.WriteHeader(code)
+}
+
+func (crw *customResponseWriter) Write(b []byte) (int, error) {
+	crw.buf.Write(b)
+	return crw.ResponseWriter.Write(b)
 }
 
 func (s *Server) Run() error {
