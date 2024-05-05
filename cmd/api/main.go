@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slog"
 )
@@ -103,17 +104,19 @@ func runHttpCommand(cmd *cobra.Command, args []string) error {
 }
 
 func dbInitConnection() *sqlx.DB {
-	//host := os.Getenv("DB_HOST")
-	//port := os.Getenv("DB_PORT")
-	//uname := os.Getenv("DB_USER")
-	//pass := os.Getenv("DB_PASSWORD")
-	//dbname := os.Getenv("DB_NAME")
+  godotenv.Load(".env")
 
-	host := "localhost"
-	port := "5432"
-	uname := "postgres"
-	pass := "123"
-	dbname := "cats_social"
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	uname := os.Getenv("DB_USERNAME")
+	pass := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+
+	// host := "localhost"
+	// port := "5432"
+	// uname := "postgres"
+	// pass := "123"
+	// dbname := "cats_social"
 
 	return psqlqgen.Init(host, port, uname, pass, dbname, shared.ServiceName)
 }
