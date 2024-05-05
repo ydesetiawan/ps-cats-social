@@ -23,6 +23,7 @@ Project Sprint for Cats Social
 
 ### Run Migration using MakeFile
 
+- make migration_setup
 - make migration_up
 - make migration_down
 - make migration_fix

@@ -50,3 +50,5 @@ Thumbs.db
 
 coverage.out
 main
+
+.env
