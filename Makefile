@@ -1,5 +1,8 @@
 include .env
 
+build:
+	GOARCH=amd64 GOOS=linux go build -o main_ydesetiawan94 cmd/api/main.go
+
 migration_setup:
 	psql -U postgres -c "CREATE DATABASE cats_social;"
 
@@ -13,3 +16,6 @@ migration_down:
 migration_fix:
 	@read -p "Enter VERSION: " VERSION; \
 	migrate -path db/migrations -database "postgresql://${DB_USERNAME}:@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" force $$VERSION
+
+migration_up_showcase:
+	migrate -database "postgres://postgres:iatuyachie1Hae4Maih5izee1vie6Ooxu@projectsprint-db.cavsdeuj9ixh.ap-southeast-1.rds.amazonaws.com:5432/postgres?sslrootcert=ap-southeast-1-bundle.pem&sslmode=verify-full" -path db/migrations up
