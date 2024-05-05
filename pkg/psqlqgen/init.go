@@ -25,7 +25,7 @@ func Init(host string, port string, uname string, pwd string, dbname string, dbp
 	sqltrace.Register("postgres", &pq.Driver{}, sqltrace.WithServiceName(servicename))
 
 	// Construct the connection string
-	dsnString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s %s", host, port, uname, pwd, dbname, dbparams)
+	dsnString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?%s", uname, pwd, host, port, dbname, dbparams)
 
 	// Connect to PostgreSQL database with tracing
 	db, err := sqlxtrace.Connect("postgres", dsnString)
