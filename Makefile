@@ -3,6 +3,9 @@ include .env
 build:
 	GOARCH=amd64 GOOS=linux go build -o main_ydesetiawan94 cmd/api/main.go
 
+deploy:
+	scp -i w1key main_ydesetiawan94 ubuntu@52.221.209.87:~
+
 migration_setup:
 	psql -U postgres -c "CREATE DATABASE cats_social;"
 
