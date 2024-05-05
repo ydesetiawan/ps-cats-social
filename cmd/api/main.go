@@ -104,19 +104,13 @@ func runHttpCommand(cmd *cobra.Command, args []string) error {
 }
 
 func dbInitConnection() *sqlx.DB {
-  godotenv.Load(".env")
+	godotenv.Load(".env")
 
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	uname := os.Getenv("DB_USERNAME")
 	pass := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
-
-	// host := "localhost"
-	// port := "5432"
-	// uname := "postgres"
-	// pass := "123"
-	// dbname := "cats_social"
 
 	return psqlqgen.Init(host, port, uname, pass, dbname, shared.ServiceName)
 }
