@@ -3,20 +3,19 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/exp/slog"
-	"log"
 	"net/http"
 	"ps-cats-social/pkg/httphelper"
 	"ps-cats-social/pkg/httphelper/response"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/exp/slog"
 )
 
 var jwtKey = []byte("your_secret_key")
 
 func JWTAuthMiddleware(fn http.HandlerFunc) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-		log.Printf("Incoming request: %s %s\n", r.Method, r.URL.Path)
 		jwtToken, err := extractJWTTokenFromHeader(r)
 		if err != nil {
 			slog.Error("Failed to extract JWT token from header", "error", err)
