@@ -1,5 +1,8 @@
 include .env
 
+migration_setup:
+	psql -U postgres -c "CREATE DATABASE cats_social;"
+
 migration_up:
 	migrate -path db/migrations/ -database "postgresql://${DB_USERNAME}:@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" -verbose up
 
