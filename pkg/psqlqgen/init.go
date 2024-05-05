@@ -2,9 +2,10 @@ package mysqlqgen
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/lib/pq"
 	"golang.org/x/exp/slog"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -12,7 +13,7 @@ import (
 	sqlxtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/jmoiron/sqlx"
 )
 
-func Init(host string, port string, uname string, pwd string, dbname string, servicename string) *sqlx.DB {
+func Init(host string, port string, uname string, pwd string, dbname string, dbparams string, servicename string) *sqlx.DB {
 	defer func() {
 		if r := recover(); r != nil {
 			slog.Error("Errors")
@@ -24,7 +25,7 @@ func Init(host string, port string, uname string, pwd string, dbname string, ser
 	sqltrace.Register("postgres", &pq.Driver{}, sqltrace.WithServiceName(servicename))
 
 	// Construct the connection string
-	dsnString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, uname, pwd, dbname)
+	dsnString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s %s", host, port, uname, pwd, dbname, dbparams)
 
 	// Connect to PostgreSQL database with tracing
 	db, err := sqlxtrace.Connect("postgres", dsnString)

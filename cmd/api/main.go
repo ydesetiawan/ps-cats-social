@@ -111,8 +111,9 @@ func dbInitConnection() *sqlx.DB {
 	uname := os.Getenv("DB_USERNAME")
 	pass := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
+	dbparams := os.Getenv("DB_PARAMS")
 
-	return psqlqgen.Init(host, port, uname, pass, dbname, shared.ServiceName)
+	return psqlqgen.Init(host, port, uname, pass, dbname, dbparams, shared.ServiceName)
 }
 
 func initInfra() {
